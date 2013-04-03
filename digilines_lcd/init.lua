@@ -58,10 +58,10 @@ local prepare_writing = function (pos)
 end
 
 local on_digiline_receive = function(pos, node, channel, msg)
-	clearscreen(pos)
 	local setchan = minetest.env:get_meta(pos):get_string("channel")
 	if setchan ~= channel then return end
 
+	clearscreen(pos)
 	local text = prepare_writing (pos)
 	text:set_properties({textures={generate_texture(create_lines(msg))}})
 end
