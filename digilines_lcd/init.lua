@@ -232,3 +232,12 @@ generate_line = function(s, ypos)
 	end
 	return texture
 end
+
+minetest.register_craft({
+	output = "digilines_lcd:lcd 2",
+	recipe = {
+		{"default:steel_ingot", "digilines:wire_std_00000000", "default:steel_ingot"},
+		{"mesecons_lightstone:lightstone_green_off","mesecons_lightstone:lightstone_green_off","mesecons_lightstone:lightstone_green_off"},
+		{"default:glass","default:glass","default:glass"}
+	}
+})
