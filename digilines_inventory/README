@@ -1,0 +1,62 @@
+Basic idea: place this chest down at the end of a pipeline. Feed stuff into it. Attach a luacontroller to it with a digiline in between. Program the luacontroller to turn on a wire to stop the pipeline when the chest is full. Don't put more than one kind of item down the pipeline into the chest, unless you want weird tricksy behavior.
+
+...[F]===[C]--{L}
+    |__________|
+   [B]
+F: filter
+B: blinky plant
+C: digiline chest
+L: luacontroller
+==: pipe
+__: mesecons
+--: digiline
+
+Make sure you use mem in the luacontroller to keep the mesecon wire on indefinitely after the chest signals full. When it signals "take" someone took an item out and you can start the pipeline up again.
+This may be a bad idea if they only take half a stack or something. Oh well.
+
+When you put something in, you get a "put" to indicate it's OK (sort of (still buggy)) and can fit inside the chest. When you get a "lost", that means it won't fit inside the chest, and will bounce, possibly popping out. When you get a "overflow" that means you tried to add something to a chest that just filled up, and the stack will bounce. When you get a "full" that means the chest just filled up.
+
+"Filled up" for all intents and purposes, means taking the type of whatever just went into the chest, and seeing if at least 1 of that type can be added to the chest. If it cannot, then it's filled up. That means a chest full of stacks of 30 copper and one spot of 98 gold, and you add one gold to that, it will say it's full. Add 30 copper to it, and it won't.
+
+Generally you'll be working with full stacks in pipeworks. Even the non-mese filters will accumulate items in a chest, and not spread them out into multiple stacks. And generally your destination chests will each have one of any kind of item. So all you have to worry about is when you've got 99 everywhere, and one space possibly free. A mese filter can fail on that in fact, for instance if you have room for 45 gold, and it tries to push a stack of 50 gold. All 50 will bounce! The code for chests isn't smart enough to add the 45 and bounce the leftover 5. So only use mese filters when you're sure a full stack has accumulated for the filter to push, and there are no partial stacks at the destination.
+
+For some reason when an "overflow" happens, when it checks if the stack can fit inside the chest, the answer is yes it can fit! Then it doesn't. Sort of buggy.
+
+itemstack - the qualified name, a space, then the amount. If the space and amount are ommitted, that represents just 1.
+
+examples: "default:chest 33" "default:coal" "default:axe_diamond"
+
+bounce 
+    - when an item cannot enter the destination container it will travel back up the tube it came from, going along alternate routes if they exist, but otherwise popping out of the tube.
+
+popping out 
+    - the little thingy travelling through the tube disappears, and an entity of the item appears, as if it was just dropped. This entity can expire, losing your items permanently!
+
+
+The messages are:
+
+
+put <itemstack>
+    - this means that the inventory claimed it could fit that stack of items inside it. Inventories lie. But with the above caveats this is quite usable.
+lost <itemstack>
+    - the stack couldn't fit in the chest and bounces.
+full <itemstack> <count>
+    - the chest has been filled. The itemstack is what filled it. count is what's leftover. 
+      until chests can suck up part of a stack and not bounce the whole stack, that count will
+      always be 0
+overflow <itemstack> <count>
+    - generally this is the same as lost, except that the "put" event happened, meaning that the 
+      itemstack was allowed in the chest. 
+    - this will happen with two stacks in rapid succession, the first filling the chest, and the
+      second bouncing. the <count> in this case will be the amount of the second.
+    - overflow can't happen with two different kinds of items, you'll get a put, maybe full, then lost for the second kind 
+
+Tricky situation:
+if you have a blank spot and put say 82 torches down your pipeline, followed by 99 coal, the 82 torches will go in the chest, and the chest will see that 1 more torch can fit since that would only go to 83. Since 1 more torch can fit, no "full" message will fire off. Then when the coal hits the chest, the "fail" message will fire and the coal will bounce out. The chest couldn't predict that coal would be coming next, so it couldn't know that the chest is full, for coal, while not full for torches.
+
+TODO: 
+    - make chest.lua a mixin that gets both default and locked chests
+    - digiline aware furnaces
+    - digiline aware technic machines, grinders, alloy furnaces, etc
+    - the pipes going into the chests don't snap to the pipe holes in the digiline chests. They still act fine as pipeworks destinations though.
+    - digiline chests seem to be immune to filters. But it's late and I'm shipping this. Someone else can figure out why the chests aren't acting like pipeworks chests, despite cloning the pipeworks chest's object. Oh who am I kidding. I'll do it myself I guess, once I've lost hope of aid again. 
