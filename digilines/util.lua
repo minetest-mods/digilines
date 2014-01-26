@@ -50,3 +50,18 @@ function digiline:rotate_rules_up(rules)
 	end
 	return nr
 end
+
+function digiline:tablecopy(table) -- deep table copy
+	if type(table) ~= "table" then return table end -- no need to copy
+	local newtable = {}
+
+	for idx, item in pairs(table) do
+		if type(item) == "table" then
+			newtable[idx] = mesecon:tablecopy(item)
+		else
+			newtable[idx] = item
+		end
+	end
+
+	return newtable
+end
