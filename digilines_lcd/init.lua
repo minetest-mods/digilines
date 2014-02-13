@@ -33,11 +33,11 @@ local lcds = {
 }
 
 local reset_meta = function(pos)
-	minetest.env:get_meta(pos):set_string("formspec", "field[channel;Channel;${channel}]")
+	minetest.get_meta(pos):set_string("formspec", "field[channel;Channel;${channel}]")
 end
 
 local clearscreen = function(pos)
-	local objects = minetest.env:get_objects_inside_radius(pos, 0.5)
+	local objects = minetest.get_objects_inside_radius(pos, 0.5)
 	for _, o in ipairs(objects) do
 		if o:get_entity_name() == "digilines_lcd:text" then
 			o:remove()
@@ -46,9 +46,9 @@ local clearscreen = function(pos)
 end
 
 local prepare_writing = function (pos)
-	lcd_info = lcds[minetest.env:get_node(pos).param2]
+	lcd_info = lcds[minetest.get_node(pos).param2]
 	if lcd_info == nil then return end
-	local text = minetest.env:add_entity(
+	local text = minetest.add_entity(
 		{x = pos.x + lcd_info.delta.x,
 		 y = pos.y + lcd_info.delta.y,
 		 z = pos.z + lcd_info.delta.z}, "digilines_lcd:text")
@@ -58,7 +58,7 @@ local prepare_writing = function (pos)
 end
 
 local on_digiline_receive = function(pos, node, channel, msg)
-	local setchan = minetest.env:get_meta(pos):get_string("channel")
+	local setchan = minetest.get_meta(pos):get_string("channel")
 	if setchan ~= channel then return end
 
 	clearscreen(pos)
@@ -86,9 +86,9 @@ minetest.register_node("digilines_lcd:lcd", {
 	groups =  {choppy = 3, dig_immediate = 2},
 
 	after_place_node = function (pos, placer, itemstack)
-		local param2 = minetest.env:get_node(pos).param2
+		local param2 = minetest.get_node(pos).param2
 		if param2 == 0 or param2 == 1 then
-			minetest.env:add_node(pos, {name = "digilines_lcd:lcd", param2 = 3})
+			minetest.add_node(pos, {name = "digilines_lcd:lcd", param2 = 3})
 		end
 		prepare_writing (pos)
 	end,
@@ -102,7 +102,7 @@ minetest.register_node("digilines_lcd:lcd", {
 	end,
 
 	on_receive_fields = function(pos, formname, fields, sender)
-		minetest.env:get_meta(pos):set_string("channel", fields.channel)
+		minetest.get_meta(pos):set_string("channel", fields.channel)
 	end,
 
 	digiline = 
@@ -122,7 +122,7 @@ minetest.register_entity("digilines_lcd:text", {
 	textures = {},
 
 	on_activate = function(self)
-		local meta = minetest.env:get_meta(self.object:getpos())
+		local meta = minetest.get_meta(self.object:getpos())
 		local text = meta:get_string("text")
 		self.object:set_properties({textures={generate_texture(create_lines(text))}})
 	end

@@ -17,9 +17,9 @@ local rtc_selbox =
 }
 
 local on_digiline_receive = function (pos, node, channel, msg)
-	local setchan = minetest.env:get_meta(pos):get_string("channel")
+	local setchan = minetest.get_meta(pos):get_string("channel")
 	if channel == setchan and msg == GET_COMMAND then
-		local timeofday = minetest.env:get_timeofday()
+		local timeofday = minetest.get_timeofday()
 		digiline:receptor_send(pos, digiline.rules.default, channel, timeofday)
 	end
 end
@@ -42,11 +42,11 @@ minetest.register_node("digilines_rtc:rtc", {
 		},
 	},
 	on_construct = function(pos)
-		local meta = minetest.env:get_meta(pos)
+		local meta = minetest.get_meta(pos)
 		meta:set_string("formspec", "field[channel;Channel;${channel}]")
 	end,
 	on_receive_fields = function(pos, formname, fields, sender)
-		local meta = minetest.env:get_meta(pos)
+		local meta = minetest.get_meta(pos)
 		fields.channel = fields.channel or ""
 		meta:set_string("channel", fields.channel)
 	end,

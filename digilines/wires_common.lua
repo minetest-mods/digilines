@@ -42,7 +42,7 @@ function digiline:update_autoconnect(pos, secondcall)
 		digiline:update_autoconnect(zmympos, true)
 	end
 
-	local digilinespec = minetest.registered_nodes[minetest.env:get_node(pos).name].digiline
+	local digilinespec = minetest.registered_nodes[minetest.get_node(pos).name].digiline
 	if not digilinespec then return nil end
 	if not digilinespec.wire then return nil end
 
@@ -80,5 +80,5 @@ function digiline:update_autoconnect(pos, secondcall)
 				tostring(xpy)..tostring(zpy)..tostring(xmy)..tostring(zmy)
 
 
-	minetest.env:set_node(pos, {name = digilinespec.wire.basename..nodeid})
+	minetest.set_node(pos, {name = digilinespec.wire.basename..nodeid})
 end
