@@ -45,7 +45,7 @@ local clearscreen = function(pos)
 	end
 end
 
-local prepare_writing = function (pos)
+local prepare_writing = function(pos)
 	lcd_info = lcds[minetest.get_node(pos).param2]
 	if lcd_info == nil then return end
 	local text = minetest.add_entity(
@@ -58,12 +58,15 @@ local prepare_writing = function (pos)
 end
 
 local on_digiline_receive = function(pos, node, channel, msg)
-	local setchan = minetest.get_meta(pos):get_string("channel")
+	local meta = minetest.get_meta(pos)
+        local setchan = meta:get_string("channel")
 	if setchan ~= channel then return end
 
+        meta:set_string("text", msg)
 	clearscreen(pos)
-	local text = prepare_writing (pos)
-	text:set_properties({textures={generate_texture(create_lines(msg))}})
+        if msg ~= "" then
+	    prepare_writing(pos)
+        end
 end
 
 local lcd_box = {
