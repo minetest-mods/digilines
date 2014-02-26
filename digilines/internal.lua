@@ -66,9 +66,8 @@ function digiline:rules_link_anydir(output, input)
 end
 
 function digiline:transmit(pos, channel, msg, checked)
-	checked = checked or {}
 	local checkedid = tostring(pos.x).."_"..tostring(pos.y).."_"..tostring(pos.z)
-	if checked[checkedid] then return checked end
+	if checked[checkedid] then return end
 	checked[checkedid] = true
 
 	local node = minetest.get_node(pos)
@@ -86,9 +85,9 @@ function digiline:transmit(pos, channel, msg, checked)
 		local rules = digiline:importrules(spec.wire.rules, node)
 		for _,rule in ipairs(rules) do
 			if digiline:rules_link(pos, digiline:addPosRule(pos, rule)) then
-				checked = digiline:transmit(digiline:addPosRule(pos, rule), channel, msg, checked)
+			        digiline:transmit(digiline:addPosRule(pos, rule), channel, msg, checked)
 			end
 		end
 	end
-	return checked
+	return
 end
