@@ -52,26 +52,26 @@ local prepare_writing = function(pos)
 		{x = pos.x + lcd_info.delta.x,
 		 y = pos.y + lcd_info.delta.y,
 		 z = pos.z + lcd_info.delta.z}, "digilines_lcd:text")
-	text:setyaw  (lcd_info.yaw or 0)
+	text:setyaw(lcd_info.yaw or 0)
 	--* text:setpitch(lcd_info.yaw or 0)
 	return text
 end
 
 local on_digiline_receive = function(pos, node, channel, msg)
 	local meta = minetest.get_meta(pos)
-        local setchan = meta:get_string("channel")
+	local setchan = meta:get_string("channel")
 	if setchan ~= channel then return end
 
-        meta:set_string("text", msg)
+	meta:set_string("text", msg)
 	clearscreen(pos)
-        if msg ~= "" then
-	    prepare_writing(pos)
-        end
+	if msg ~= "" then
+		prepare_writing(pos)
+	end
 end
 
 local lcd_box = {
 	type = "wallmounted",
-	wall_top    = {-8/16,  7/16, -8/16,  8/16,  8/16, 8/16}
+	wall_top = {-8/16, 7/16, -8/16, 8/16, 8/16, 8/16}
 }
 
 minetest.register_node("digilines_lcd:lcd", {
@@ -86,7 +86,7 @@ minetest.register_node("digilines_lcd:lcd", {
 	paramtype2 = "wallmounted",
 	node_box = lcd_box,
 	selection_box = lcd_box,
-	groups =  {choppy = 3, dig_immediate = 2},
+	groups = {choppy = 3, dig_immediate = 2},
 
 	after_place_node = function (pos, placer, itemstack)
 		local param2 = minetest.get_node(pos).param2
