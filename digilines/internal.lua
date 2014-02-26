@@ -85,9 +85,8 @@ function digiline:transmit(pos, channel, msg, checked)
 		local rules = digiline:importrules(spec.wire.rules, node)
 		for _,rule in ipairs(rules) do
 			if digiline:rules_link(pos, digiline:addPosRule(pos, rule)) then
-			        digiline:transmit(digiline:addPosRule(pos, rule), channel, msg, checked)
+				digiline:transmit(digiline:addPosRule(pos, rule), channel, msg, checked)
 			end
 		end
 	end
-	return
 end
