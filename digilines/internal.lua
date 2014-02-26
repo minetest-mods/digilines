@@ -14,7 +14,7 @@ function digiline:importrules(spec, node)
 end
 
 function digiline:getAnyInputRules(pos)
-	local node = minetest.env:get_node(pos)
+	local node = minetest.get_node(pos)
 	spec = digiline:getspec(node)
 	if not spec then return end
 
@@ -29,7 +29,7 @@ function digiline:getAnyInputRules(pos)
 end
 
 function digiline:getAnyOutputRules(pos)
-	local node = minetest.env:get_node(pos)
+	local node = minetest.get_node(pos)
 	spec = digiline:getspec(node)
 	if not spec then return end
 
@@ -71,7 +71,7 @@ function digiline:transmit(pos, channel, msg, checked)
 	if checked[checkedid] then return checked end
 	checked[checkedid] = true
 
-	local node = minetest.env:get_node(pos)
+	local node = minetest.get_node(pos)
 	local spec = digiline:getspec(node)
 	if not spec then return end
 
