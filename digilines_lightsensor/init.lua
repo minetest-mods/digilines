@@ -50,8 +50,8 @@ minetest.register_node("digilines_lightsensor:lightsensor", {
 		meta:set_string("formspec", "field[channel;Channel;${channel}]")
 	end,
 	on_receive_fields = function(pos, formname, fields, sender)
-		local meta = minetest.get_meta(pos)
-		fields.channel = fields.channel or ""
-		meta:set_string("channel", fields.channel)
+		if (fields.channel) then
+			minetest.get_meta(pos):set_string("channel", fields.channel)
+		end
 	end,
 })

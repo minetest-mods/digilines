@@ -105,7 +105,9 @@ minetest.register_node("digilines_lcd:lcd", {
 	end,
 
 	on_receive_fields = function(pos, formname, fields, sender)
-		minetest.get_meta(pos):set_string("channel", fields.channel)
+		if (fields.channel) then
+			minetest.get_meta(pos):set_string("channel", fields.channel)
+		end
 	end,
 
 	digiline = 
