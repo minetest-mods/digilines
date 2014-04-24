@@ -141,34 +141,11 @@ local NUMBER_OF_LINES = 5
 local LINE_HEIGHT = 14
 local CHAR_WIDTH = 5
 
-string_to_array = function(str)
-	local tab = {}
-	for i=1,string.len(str) do
-		table.insert(tab, string.sub(str, i,i))
-	end
-	return tab
-end
-
-string_to_word_array = function(str)
-	local tab = {}
-	local current = 1
-	tab[1] = ""
-	for _,char in ipairs(string_to_array(str)) do
-		if char ~= " " then
-			tab[current] = tab[current]..char
-		else
-			current = current+1
-			tab[current] = ""
-		end
-	end
-	return tab
-end
-
 create_lines = function(text)
 	local line = ""
 	local line_num = 1
 	local tab = {}
-	for _,word in ipairs(string_to_word_array(text)) do
+	for word in string.gmatch(text, "%S+") do
 		if string.len(line)+string.len(word) < LINE_LENGTH and word ~= "|" then
 			if line ~= "" then
 				line = line.." "..word
