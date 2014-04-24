@@ -91,7 +91,8 @@ for zmy=0, 1 do
 		{
 			wire = 
 			{
-				basename = "digilines:wire_std_"
+				basename = "digilines:wire_std_",
+				use_autoconnect = true
 			}
 		},
 		selection_box = {
