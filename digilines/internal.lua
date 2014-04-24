@@ -15,7 +15,7 @@ end
 
 function digiline:getAnyInputRules(pos)
 	local node = minetest.get_node(pos)
-	spec = digiline:getspec(node)
+	local spec = digiline:getspec(node)
 	if not spec then return end
 
 	if spec.wire then
@@ -30,7 +30,7 @@ end
 
 function digiline:getAnyOutputRules(pos)
 	local node = minetest.get_node(pos)
-	spec = digiline:getspec(node)
+	local spec = digiline:getspec(node)
 	if not spec then return end
 
 	if spec.wire then
