@@ -55,8 +55,10 @@ mychest = tableMergeImmutable(defaultChest,{
 		meta:set_string("formspec",meta:get_string("formspec").."\nfield[2,4.5;5,1;channel;Channel;${channel}]")
 	end,
 	on_receive_fields = function(pos, formname, fields, sender)
-		minetest.get_meta(pos):set_string("channel",fields.channel)
-		return defer(defaultChest.on_receive_fields, pos, formname, fields, sender)
+		if fields.channel ~= nil then
+			minetest.get_meta(pos):set_string("channel",fields.channel)
+			return defer(defaultChest.on_receive_fields, pos, formname, fields, sender)
+		end
 	end,
 	tube = tableMergeImmutable(defaultChest.tube, {
 		-- note: mese filters cannot put part of a stack in the destination.
