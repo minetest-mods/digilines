@@ -42,10 +42,12 @@ function digiline:update_autoconnect(pos, secondcall)
 		digiline:update_autoconnect(zmympos, true)
 	end
 
-	local digilinespec = minetest.registered_nodes[minetest.get_node(pos).name].digiline
-	if not digilinespec then return nil end
-	if not digilinespec.wire then return nil end
-	if not digilinespec.wire.use_autoconnect then return nil end
+	local def = minetest.registered_nodes[minetest.get_node(pos).name]
+	local digilinespec = def and def.digiline
+	if not (digilinespec and digilinespec.wire and
+			digilinespec.wire.use_autoconnect) then
+		return nil
+	end
 
 	local zmg = 	digiline:rules_link_anydir(pos, zmpos)
 	local zmymg = 	digiline:rules_link_anydir(pos, zmympos)
