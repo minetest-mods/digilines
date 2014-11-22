@@ -57,7 +57,7 @@ function digiline:tablecopy(table) -- deep table copy
 
 	for idx, item in pairs(table) do
 		if type(item) == "table" then
-			newtable[idx] = mesecon:tablecopy(item)
+			newtable[idx] = digiline:tablecopy(item)
 		else
 			newtable[idx] = item
 		end
