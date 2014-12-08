@@ -127,6 +127,10 @@ minetest.register_node("digilines_inventory:chest", {
 		minetest.log("action", player:get_player_name().." puts stuff into chest at "..minetest.pos_to_string(pos))
 	end,
 	on_metadata_inventory_take = function(pos, listname, index, stack, player)
+		local inv = minetest.get_meta(pos):get_inventory()
+		if inv:is_empty(listname) then
+			sendMessage(pos, "empty", channel)
+		end
 		sendMessage(pos,"utake "..maybeString(stack))
 		minetest.log("action", player:get_player_name().." takes stuff from chest at "..minetest.pos_to_string(pos))
 	end
