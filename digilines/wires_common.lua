@@ -64,6 +64,7 @@ function digiline:update_autoconnect(pos, secondcall)
 	local xmyg = digiline:rules_link_anydir(pos, xmypos)
 	local zmyg = digiline:rules_link_anydir(pos, zmypos)
 
+	local zm, xm, zp, xp, xpy, zpy, xmy, zmy
 	if zmg or zmymg then zm = 1 else zm = 0 end
 	if xmg or xmymg then xm = 1 else xm = 0 end
 	if zpg or zpymg then zp = 1 else zp = 0 end
