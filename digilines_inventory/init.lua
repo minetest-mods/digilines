@@ -135,3 +135,9 @@ minetest.register_node("digilines_inventory:chest", {
 		minetest.log("action", player:get_player_name().." takes stuff from chest at "..minetest.pos_to_string(pos))
 	end
 })
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "digilines_inventory:chest",
+	recipe = {"default:chest", "digilines:wire_std_00000000"}
+})
