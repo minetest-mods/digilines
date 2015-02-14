@@ -63,6 +63,7 @@ local on_digiline_receive = function(pos, node, channel, msg)
 	if setchan ~= channel then return end
 
 	meta:set_string("text", msg)
+	meta:set_string("infotext", msg)
 	clearscreen(pos)
 	if msg ~= "" then
 		prepare_writing(pos)
