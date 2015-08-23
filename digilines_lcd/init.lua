@@ -39,14 +39,15 @@ end
 local clearscreen = function(pos)
 	local objects = minetest.get_objects_inside_radius(pos, 0.5)
 	for _, o in ipairs(objects) do
-		if o:get_entity_name() == "digilines_lcd:text" then
+		local o_entity = o:get_luaentity()
+		if o_entity and o_entity.name == "digilines_lcd:text" then
 			o:remove()
 		end
 	end
 end
 
 local prepare_writing = function(pos)
-	lcd_info = lcds[minetest.get_node(pos).param2]
+	local lcd_info = lcds[minetest.get_node(pos).param2]
 	if lcd_info == nil then return end
 	local text = minetest.add_entity(
 		{x = pos.x + lcd_info.delta.x,
