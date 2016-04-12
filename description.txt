@@ -1,0 +1,1 @@
+This mod adds digiline wires, an RTC (Real Time Clock), a light sensor as well as an LCD Screen. Can be used together with the luacontroller from mesecons.
