@@ -24,8 +24,6 @@ function digiline:getAnyInputRules(pos)
 	if spec.effector then
 		return digiline:importrules(spec.effector.rules, node)
 	end
-
-	return rules
 end
 
 function digiline:getAnyOutputRules(pos)
