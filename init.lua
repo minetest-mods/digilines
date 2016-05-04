@@ -1,9 +1,11 @@
 digiline = {}
-dofile(minetest.get_modpath("digilines").."/presetrules.lua")
-dofile(minetest.get_modpath("digilines").."/util.lua")
-dofile(minetest.get_modpath("digilines").."/internal.lua")
-dofile(minetest.get_modpath("digilines").."/wires_common.lua")
-dofile(minetest.get_modpath("digilines").."/wire_std.lua")
+
+local modpath = minetest.get_modpath("digilines")
+dofile(modpath .. "/presetrules.lua")
+dofile(modpath .. "/util.lua")
+dofile(modpath .. "/internal.lua")
+dofile(modpath .. "/wires_common.lua")
+dofile(modpath .. "/wire_std.lua")
 
 function digiline:receptor_send(pos, rules, channel, msg)
 	local checked = {}
@@ -23,3 +25,20 @@ minetest.register_craft({
 		{'mesecons_materials:fiber', 'mesecons_materials:fiber', 'mesecons_materials:fiber'},
 	}
 })
+
+-- former submods
+if minetest.is_yes(minetest.setting_get("digilines_enable_inventory") or true) then
+	dofile(modpath .. "/inventory.lua")
+end
+
+if minetest.is_yes(minetest.setting_get("digilines_enable_lcd") or true) then
+	dofile(modpath .. "/lcd.lua")
+end
+
+if minetest.is_yes(minetest.setting_get("digilines_enable_lightsensor") or true) then
+	dofile(modpath .. "/lightsensor.lua")
+end
+
+if minetest.is_yes(minetest.setting_get("digilines_enable_rtc") or true) then
+	dofile(modpath .. "/rtc.lua")
+end

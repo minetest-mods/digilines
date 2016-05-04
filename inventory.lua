@@ -26,7 +26,8 @@ end
 local tubeconn = minetest.get_modpath("pipeworks") and "^pipeworks_tube_connection_wooden.png" or ""
 local tubescan = minetest.get_modpath("pipeworks") and function(pos) pipeworks.scan_for_tube_objects(pos) end or nil
 
-minetest.register_node("digilines_inventory:chest", {
+minetest.register_alias("digilines_inventory:chest", "digilines:chest")
+minetest.register_node("digilines:chest", {
 	description = "Digiline Chest",
 	tiles = {
 		"default_chest_top.png"..tubeconn,
@@ -145,6 +146,6 @@ minetest.register_node("digilines_inventory:chest", {
 
 minetest.register_craft({
 	type = "shapeless",
-	output = "digilines_inventory:chest",
+	output = "digilines:chest",
 	recipe = {"default:chest", "digilines:wire_std_00000000"}
 })
