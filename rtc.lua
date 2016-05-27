@@ -1,21 +1,16 @@
 local GET_COMMAND = "GET"
 
-local lsensor_nodebox =
+local rtc_nodebox =
 {
 	type = "fixed",
 	fixed = {
 		{ -8/16, -8/16, -8/16, 8/16, -7/16, 8/16 }, -- bottom slab
 
-		{ -7/16, -7/16, -7/16, -4/16, -5/16,  7/16 }, -- bonds
-		{  4/16, -7/16, -7/16,  7/16, -5/16,  7/16 },
-		{ -7/16, -7/16, -7/16,  7/16, -5/16, -4/16 },
-		{ -7/16, -7/16,  4/16,  7/16, -5/16,  7/16 },
-
-		{ -1/16, -7/16, -1/16, 1/16, -5/16, 1/16 }, -- pin thing in the middle
+		{ -7/16, -7/16, -7/16, 7/16, -5/16,  7/16 },
 	}
 }
 
-local lsensor_selbox =
+local rtc_selbox =
 {
 	type = "fixed",
 	fixed = {{ -8/16, -8/16, -8/16, 8/16, -3/16, 8/16 }}
@@ -24,20 +19,22 @@ local lsensor_selbox =
 local on_digiline_receive = function (pos, node, channel, msg)
 	local setchan = minetest.get_meta(pos):get_string("channel")
 	if channel == setchan and msg == GET_COMMAND then
-		local lightval = minetest.get_node_light(pos)
-		digiline:receptor_send(pos, digiline.rules.default, channel, lightval)
+		local timeofday = minetest.get_timeofday()
+		digiline:receptor_send(pos, digiline.rules.default, channel, timeofday)
 	end
 end
 
-minetest.register_node("digilines_lightsensor:lightsensor", {
-	description = "Digiline Lightsensor",
+minetest.register_alias("digilines_rtc:rtc", "digilines:rtc")
+minetest.register_node("digilines:rtc", {
+	description = "Digiline Real Time Clock (RTC)",
 	drawtype = "nodebox",
-	tiles = {"digilines_lightsensor.png"},
+	tiles = {"digilines_rtc.png"},
 
 	paramtype = "light",
+	paramtype2 = "facedir",
 	groups = {dig_immediate=2},
-	selection_box = lsensor_selbox,
-	node_box = lsensor_nodebox,
+	selection_box = rtc_selbox,
+	node_box = rtc_nodebox,
 	digiline = 
 	{
 		receptor = {},
