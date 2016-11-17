@@ -63,27 +63,54 @@ function digiline:rules_link_anydir(output, input)
 	or     digiline:rules_link(input, output)
 end
 
+local function queue_new()
+	return {nextRead = 1, nextWrite = 1}
+end
+
+local function queue_empty(queue)
+	return queue.nextRead == queue.nextWrite
+end
+
+local function queue_enqueue(queue, object)
+	local nextWrite = queue.nextWrite
+	queue[nextWrite] = object
+	queue.nextWrite = nextWrite + 1
+end
+
+local function queue_dequeue(queue)
+	local nextRead = queue.nextRead
+	local object = queue[nextRead]
+	queue[nextRead] = nil
+	queue.nextRead = nextRead + 1
+	return object
+end
+
 function digiline:transmit(pos, channel, msg, checked)
-	local checkedid = tostring(pos.x).."_"..tostring(pos.y).."_"..tostring(pos.z)
-	if checked[checkedid] then return end
-	checked[checkedid] = true
+	local queue = queue_new()
+	queue_enqueue(queue, pos)
+	while not queue_empty(queue) do
+		local curPos = queue_dequeue(queue)
+		local node = minetest.get_node(curPos)
+		local spec = digiline:getspec(node)
+		if spec then
+			-- Effector actions --> Receive
+			if spec.effector then
+				spec.effector.action(curPos, node, channel, msg)
+			end
 
-	local node = minetest.get_node(pos)
-	local spec = digiline:getspec(node)
-	if not spec then return end
-
-
-	-- Effector actions --> Receive
-	if spec.effector then
-		spec.effector.action(pos, node, channel, msg)
-	end
-
-	-- Cable actions --> Transmit
-	if spec.wire then
-		local rules = digiline:importrules(spec.wire.rules, node)
-		for _,rule in ipairs(rules) do
-			if digiline:rules_link(pos, digiline:addPosRule(pos, rule)) then
-				digiline:transmit(digiline:addPosRule(pos, rule), channel, msg, checked)
+			-- Cable actions --> Transmit
+			if spec.wire then
+				local rules = digiline:importrules(spec.wire.rules, node)
+				for _, rule in ipairs(rules) do
+					local nextPos = digiline:addPosRule(curPos, rule)
+					if digiline:rules_link(curPos, nextPos) then
+						local checkedID = tostring(nextPos.x) .. "_" .. tostring(nextPos.y) .. "_" .. tostring(nextPos.z)
+						if not checked[checkedID] then
+							checked[checkedID] = true
+							queue_enqueue(queue, nextPos)
+						end
+					end
+				end
 			end
 		end
 	end
