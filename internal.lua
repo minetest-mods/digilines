@@ -14,7 +14,7 @@ function digiline:importrules(spec, node)
 end
 
 function digiline:getAnyInputRules(pos)
-	local node = minetest.get_node(pos)
+	local node = digiline:get_node_force(pos)
 	local spec = digiline:getspec(node)
 	if not spec then return end
 
@@ -27,7 +27,7 @@ function digiline:getAnyInputRules(pos)
 end
 
 function digiline:getAnyOutputRules(pos)
-	local node = minetest.get_node(pos)
+	local node = digiline:get_node_force(pos)
 	local spec = digiline:getspec(node)
 	if not spec then return end
 
@@ -86,11 +86,12 @@ local function queue_dequeue(queue)
 end
 
 function digiline:transmit(pos, channel, msg, checked)
+	digiline:vm_begin()
 	local queue = queue_new()
 	queue_enqueue(queue, pos)
 	while not queue_empty(queue) do
 		local curPos = queue_dequeue(queue)
-		local node = minetest.get_node(curPos)
+		local node = digiline:get_node_force(curPos)
 		local spec = digiline:getspec(node)
 		if spec then
 			-- Effector actions --> Receive
@@ -114,4 +115,5 @@ function digiline:transmit(pos, channel, msg, checked)
 			end
 		end
 	end
+	digiline:vm_end()
 end
