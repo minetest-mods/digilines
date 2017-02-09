@@ -26,10 +26,10 @@ local lcds = {
 	-- on ground
 	--* [1] = {delta = {x = 0, y =-0.4, z = 0}, pitch = math.pi /  2},
 	-- sides
-	[2] = {delta = {x =  0.4, y = 0, z = 0}, yaw = math.pi / -2},
-	[3] = {delta = {x = -0.4, y = 0, z = 0}, yaw = math.pi /  2},
-	[4] = {delta = {x = 0, y = 0, z =  0.4}, yaw = 0},
-	[5] = {delta = {x = 0, y = 0, z = -0.4}, yaw = math.pi},
+	[2] = {delta = {x =  0.437, y = 0, z = 0}, yaw = math.pi / -2},
+	[3] = {delta = {x = -0.437, y = 0, z = 0}, yaw = math.pi /  2},
+	[4] = {delta = {x = 0, y = 0, z =  0.437}, yaw = 0},
+	[5] = {delta = {x = 0, y = 0, z = -0.437}, yaw = math.pi},
 }
 
 local reset_meta = function(pos)
@@ -118,7 +118,7 @@ minetest.register_node("digilines:lcd", {
 		end
 	end,
 
-	digiline = 
+	digiline =
 	{
 		receptor = {},
 		effector = {
