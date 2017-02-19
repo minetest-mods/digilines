@@ -105,7 +105,7 @@ function digiline:transmit(pos, channel, msg, checked)
 				for _, rule in ipairs(rules) do
 					local nextPos = digiline:addPosRule(curPos, rule)
 					if digiline:rules_link(curPos, nextPos) then
-						local checkedID = tostring(nextPos.x) .. "_" .. tostring(nextPos.y) .. "_" .. tostring(nextPos.z)
+						local checkedID = minetest.hash_node_position(nextPos)
 						if not checked[checkedID] then
 							checked[checkedID] = true
 							queue_enqueue(queue, nextPos)
