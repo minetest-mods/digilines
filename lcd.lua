@@ -140,7 +140,7 @@ local prepare_writing = function(pos)
 	return text
 end
 
-local on_digiline_receive = function(pos, node, channel, msg)
+local on_digiline_receive = function(pos, _, channel, msg)
 	local meta = minetest.get_meta(pos)
 	local setchan = meta:get_string("channel")
 	if setchan ~= channel then return end
@@ -173,7 +173,7 @@ minetest.register_node("digilines:lcd", {
 	selection_box = lcd_box,
 	groups = {choppy = 3, dig_immediate = 2},
 
-	after_place_node = function (pos, placer, itemstack)
+	after_place_node = function (pos)
 		local param2 = minetest.get_node(pos).param2
 		if param2 == 0 or param2 == 1 then
 			minetest.add_node(pos, {name = "digilines:lcd", param2 = 3})
@@ -189,7 +189,7 @@ minetest.register_node("digilines:lcd", {
 		clearscreen(pos)
 	end,
 
-	on_receive_fields = function(pos, formname, fields, sender)
+	on_receive_fields = function(pos, _, fields, sender)
 		local name = sender:get_player_name()
 		if minetest.is_protected(pos, name) and not minetest.check_player_privs(name, {protection_bypass=true}) then
 			minetest.record_protection_violation(pos, name)
