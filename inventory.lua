@@ -2,7 +2,7 @@ local function sendMessage(pos, msg, channel)
 	if channel == nil then
 		channel = minetest.get_meta(pos):get_string("channel")
 	end
-	digiline:receptor_send(pos,digiline.rules.default,channel,msg)
+	digilines:receptor_send(pos,digilines.rules.default,channel,msg)
 end
 
 local function maybeString(stack)

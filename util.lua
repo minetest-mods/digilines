@@ -1,13 +1,13 @@
-function digiline:addPosRule(p, r)
+function digilines:addPosRule(p, r)
 	return {x = p.x + r.x, y = p.y + r.y, z = p.z + r.z}
 end
 
-function digiline:cmpPos(p1, p2)
+function digilines:cmpPos(p1, p2)
 	return (p1.x == p2.x and p1.y == p2.y and p1.z == p2.z)
 end
 
 --Rules rotation Functions:
-function digiline:rotate_rules_right(rules)
+function digilines:rotate_rules_right(rules)
 	local nr={}
 	for i, rule in ipairs(rules) do
 		nr[i]={}
@@ -18,7 +18,7 @@ function digiline:rotate_rules_right(rules)
 	return nr
 end
 
-function digiline:rotate_rules_left(rules)
+function digilines:rotate_rules_left(rules)
 	local nr={}
 	for i, rule in ipairs(rules) do
 		nr[i]={}
@@ -29,7 +29,7 @@ function digiline:rotate_rules_left(rules)
 	return nr
 end
 
-function digiline:rotate_rules_down(rules)
+function digilines:rotate_rules_down(rules)
 	local nr={}
 	for i, rule in ipairs(rules) do
 		nr[i]={}
@@ -40,7 +40,7 @@ function digiline:rotate_rules_down(rules)
 	return nr
 end
 
-function digiline:rotate_rules_up(rules)
+function digilines:rotate_rules_up(rules)
 	local nr={}
 	for i, rule in ipairs(rules) do
 		nr[i]={}
@@ -51,13 +51,13 @@ function digiline:rotate_rules_up(rules)
 	return nr
 end
 
-function digiline:tablecopy(table) -- deep table copy
+function digilines:tablecopy(table) -- deep table copy
 	if type(table) ~= "table" then return table end -- no need to copy
 	local newtable = {}
 
 	for idx, item in pairs(table) do
 		if type(item) == "table" then
-			newtable[idx] = digiline:tablecopy(item)
+			newtable[idx] = digilines:tablecopy(item)
 		else
 			newtable[idx] = item
 		end
