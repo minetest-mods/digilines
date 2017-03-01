@@ -20,7 +20,7 @@ local on_digiline_receive = function (pos, node, channel, msg)
 	local setchan = minetest.get_meta(pos):get_string("channel")
 	if channel == setchan and msg == GET_COMMAND then
 		local timeofday = minetest.get_timeofday()
-		digiline:receptor_send(pos, digiline.rules.default, channel, timeofday)
+		digilines:receptor_send(pos, digilines.rules.default, channel, timeofday)
 	end
 end
 

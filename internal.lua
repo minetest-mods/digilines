@@ -1,15 +1,15 @@
-function digiline:getspec(node)
+function digilines:getspec(node)
 	if not minetest.registered_nodes[node.name] then return false end
 	return minetest.registered_nodes[node.name].digiline
 end
 
-function digiline:importrules(spec, node)
+function digilines:importrules(spec, node)
 	if type(spec) == 'function' then
 		return spec(node)
 	elseif spec then
 		return spec
 	else
-		return digiline.rules.default
+		return digilines.rules.default
 	end
 end
 
@@ -19,10 +19,10 @@ function digiline:getAnyInputRules(pos)
 	if not spec then return end
 
 	if spec.wire then
-		return digiline:importrules(spec.wire.rules, node)
+		return digilines:importrules(spec.wire.rules, node)
 	end
 	if spec.effector then
-		return digiline:importrules(spec.effector.rules, node)
+		return digilines:importrules(spec.effector.rules, node)
 	end
 end
 
@@ -32,24 +32,24 @@ function digiline:getAnyOutputRules(pos)
 	if not spec then return end
 
 	if spec.wire then
-		return digiline:importrules(spec.wire.rules, node)
+		return digilines:importrules(spec.wire.rules, node)
 	end
 	if spec.receptor then
-		return digiline:importrules(spec.receptor.rules, node)
+		return digilines:importrules(spec.receptor.rules, node)
 	end
 end
 
-function digiline:rules_link(output, input)
-	local outputrules = digiline:getAnyOutputRules(output)
-	local inputrules  = digiline:getAnyInputRules (input)
+function digilines:rules_link(output, input)
+	local outputrules = digilines:getAnyOutputRules(output)
+	local inputrules  = digilines:getAnyInputRules (input)
 
 	if not outputrules or not inputrules then return false end
 
 
 	for _, orule in ipairs(outputrules) do
-		if digiline:cmpPos(digiline:addPosRule(output, orule), input) then
+		if digilines:cmpPos(digilines:addPosRule(output, orule), input) then
 			for _, irule in ipairs(inputrules) do
-				if digiline:cmpPos(digiline:addPosRule(input, irule), output) then
+				if digilines:cmpPos(digilines:addPosRule(input, irule), output) then
 					return true
 				end
 			end
@@ -58,9 +58,9 @@ function digiline:rules_link(output, input)
 	return false
 end
 
-function digiline:rules_link_anydir(output, input)
-	return digiline:rules_link(output, input)
-	or     digiline:rules_link(input, output)
+function digilines:rules_link_anydir(output, input)
+	return digilines:rules_link(output, input)
+	or     digilines:rules_link(input, output)
 end
 
 local function queue_new()
