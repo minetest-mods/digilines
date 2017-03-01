@@ -1,17 +1,17 @@
 minetest.register_on_placenode(function(pos, node)
 	if minetest.registered_nodes[node.name].digiline then
-		digilines:update_autoconnect(pos)
+		digilines.update_autoconnect(pos)
 	end
 end)
 
 minetest.register_on_dignode(function(pos, node)
 	if minetest.registered_nodes[node.name] and minetest.registered_nodes[node.name].digiline then
 -- need to make sure that node exists (unknown nodes!)
-		digilines:update_autoconnect(pos)
+		digilines.update_autoconnect(pos)
 	end
 end)
 
-function digilines:update_autoconnect(pos, secondcall)
+function digilines.update_autoconnect(pos, secondcall)
 	local xppos = {x=pos.x+1, y=pos.y, z=pos.z}
 	local zppos = {x=pos.x, y=pos.y, z=pos.z+1}
 	local xmpos = {x=pos.x-1, y=pos.y, z=pos.z}
@@ -26,20 +26,20 @@ function digilines:update_autoconnect(pos, secondcall)
 	local zmypos = {x=pos.x, y=pos.y+1, z=pos.z-1}
 
 	if secondcall == nil then
-		digilines:update_autoconnect(xppos, true)
-		digilines:update_autoconnect(zppos, true)
-		digilines:update_autoconnect(xmpos, true)
-		digilines:update_autoconnect(zmpos, true)
+		digilines.update_autoconnect(xppos, true)
+		digilines.update_autoconnect(zppos, true)
+		digilines.update_autoconnect(xmpos, true)
+		digilines.update_autoconnect(zmpos, true)
 
-		digilines:update_autoconnect(xpypos, true)
-		digilines:update_autoconnect(zpypos, true)
-		digilines:update_autoconnect(xmypos, true)
-		digilines:update_autoconnect(zmypos, true)
+		digilines.update_autoconnect(xpypos, true)
+		digilines.update_autoconnect(zpypos, true)
+		digilines.update_autoconnect(xmypos, true)
+		digilines.update_autoconnect(zmypos, true)
 
-		digilines:update_autoconnect(xpympos, true)
-		digilines:update_autoconnect(zpympos, true)
-		digilines:update_autoconnect(xmympos, true)
-		digilines:update_autoconnect(zmympos, true)
+		digilines.update_autoconnect(xpympos, true)
+		digilines.update_autoconnect(zpympos, true)
+		digilines.update_autoconnect(xmympos, true)
+		digilines.update_autoconnect(zmympos, true)
 	end
 
 	local def = minetest.registered_nodes[minetest.get_node(pos).name]
@@ -49,20 +49,20 @@ function digilines:update_autoconnect(pos, secondcall)
 		return nil
 	end
 
-	local zmg = 	digilines:rules_link_anydir(pos, zmpos)
-	local zmymg = 	digilines:rules_link_anydir(pos, zmympos)
-	local xmg = 	digilines:rules_link_anydir(pos, xmpos)
-	local xmymg = 	digilines:rules_link_anydir(pos, xmympos)
-	local zpg = 	digilines:rules_link_anydir(pos, zppos)
-	local zpymg = 	digilines:rules_link_anydir(pos, zpympos)
-	local xpg = 	digilines:rules_link_anydir(pos, xppos)
-	local xpymg = 	digilines:rules_link_anydir(pos, xpympos)
+	local zmg = 	digilines.rules_link_anydir(pos, zmpos)
+	local zmymg = 	digilines.rules_link_anydir(pos, zmympos)
+	local xmg = 	digilines.rules_link_anydir(pos, xmpos)
+	local xmymg = 	digilines.rules_link_anydir(pos, xmympos)
+	local zpg = 	digilines.rules_link_anydir(pos, zppos)
+	local zpymg = 	digilines.rules_link_anydir(pos, zpympos)
+	local xpg = 	digilines.rules_link_anydir(pos, xppos)
+	local xpymg = 	digilines.rules_link_anydir(pos, xpympos)
 
 
-	local xpyg = digilines:rules_link_anydir(pos, xpypos)
-	local zpyg = digilines:rules_link_anydir(pos, zpypos)
-	local xmyg = digilines:rules_link_anydir(pos, xmypos)
-	local zmyg = digilines:rules_link_anydir(pos, zmypos)
+	local xpyg = digilines.rules_link_anydir(pos, xpypos)
+	local zpyg = digilines.rules_link_anydir(pos, zpypos)
+	local xmyg = digilines.rules_link_anydir(pos, xmypos)
+	local zmyg = digilines.rules_link_anydir(pos, zmypos)
 
 	local zm, xm, zp, xp, xpy, zpy, xmy, zmy
 	if zmg or zmymg then zm = 1 else zm = 0 end

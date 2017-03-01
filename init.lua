@@ -11,12 +11,12 @@ dofile(modpath .. "/internal.lua")
 dofile(modpath .. "/wires_common.lua")
 dofile(modpath .. "/wire_std.lua")
 
-function digilines:receptor_send(pos, rules, channel, msg)
+function digilines.receptor_send(pos, rules, channel, msg)
 	local checked = {}
 	checked[minetest.hash_node_position(pos)] = true -- exclude itself
 	for _,rule in ipairs(rules) do
-		if digilines:rules_link(pos, digilines:addPosRule(pos, rule)) then
-			digilines:transmit(digilines:addPosRule(pos, rule), channel, msg, checked)
+		if digilines.rules_link(pos, digilines.addPosRule(pos, rule)) then
+			digilines.transmit(digilines.addPosRule(pos, rule), channel, msg, checked)
 		end
 	end
 end
