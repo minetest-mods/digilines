@@ -25,7 +25,7 @@ local on_digiline_receive = function (pos, node, channel, msg)
 	local setchan = minetest.get_meta(pos):get_string("channel")
 	if channel == setchan and msg == GET_COMMAND then
 		local lightval = minetest.get_node_light(pos)
-		digilines:receptor_send(pos, digilines.rules.default, channel, lightval)
+		digilines.receptor_send(pos, digilines.rules.default, channel, lightval)
 	end
 end
 
