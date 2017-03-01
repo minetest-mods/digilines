@@ -16,7 +16,7 @@ local rtc_selbox =
 	fixed = {{ -8/16, -8/16, -8/16, 8/16, -3/16, 8/16 }}
 }
 
-local on_digiline_receive = function (pos, node, channel, msg)
+local on_digiline_receive = function (pos, _, channel, msg)
 	local setchan = minetest.get_meta(pos):get_string("channel")
 	if channel == setchan and msg == GET_COMMAND then
 		local timeofday = minetest.get_timeofday()
@@ -46,7 +46,7 @@ minetest.register_node("digilines:rtc", {
 		local meta = minetest.get_meta(pos)
 		meta:set_string("formspec", "field[channel;Channel;${channel}]")
 	end,
-	on_receive_fields = function(pos, formname, fields, sender)
+	on_receive_fields = function(pos, _, fields, sender)
 		local name = sender:get_player_name()
 		if minetest.is_protected(pos, name) and not minetest.check_player_privs(name, {protection_bypass=true}) then
 			minetest.record_protection_violation(pos, name)

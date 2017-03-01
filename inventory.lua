@@ -58,10 +58,10 @@ minetest.register_node("digilines:chest", {
 	end,
 	after_place_node = tubescan,
 	after_dig_node = tubescan,
-	can_dig = function(pos, player)
+	can_dig = function(pos)
 		return minetest.get_meta(pos):get_inventory():is_empty("main")
 	end,
-	on_receive_fields = function(pos, formname, fields, sender)
+	on_receive_fields = function(pos, _, fields, sender)
 		local name = sender:get_player_name()
 		if minetest.is_protected(pos, name) and not minetest.check_player_privs(name, {protection_bypass=true}) then
 			minetest.record_protection_violation(pos, name)
@@ -74,7 +74,7 @@ minetest.register_node("digilines:chest", {
 	digiline = {
 		receptor = {},
 		effector = {
-			action = function(pos,node,channel,msg) end
+			action = function() end
 		}
 	},
 	tube = {
@@ -83,10 +83,10 @@ minetest.register_node("digilines:chest", {
 			return not pipeworks.connects.facingFront(i,param2)
 		end,
 		input_inventory = "main",
-		can_insert = function(pos, node, stack, direction)
+		can_insert = function(pos, _, stack)
 			return can_insert(pos, stack)
 		end,
-		insert_object = function(pos, node, stack, direction)
+		insert_object = function(pos, _, stack)
 			local inv = minetest.get_meta(pos):get_inventory()
 			local leftover = inv:add_item("main", stack)
 			local count = leftover:get_count()
@@ -108,16 +108,16 @@ minetest.register_node("digilines:chest", {
 			return leftover
 		end,
 	},
-	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
+	allow_metadata_inventory_put = function(pos, _, _, stack)
 		if not can_insert(pos, stack) then
 			sendMessage(pos,"uoverflow "..maybeString(stack))
 		end
 		return stack:get_count()
 	end,
-	on_metadata_inventory_move = function(pos, fromlistname, fromindex, tolistname, toindex, count, player)
+	on_metadata_inventory_move = function(pos, _, _, _, _, _, player)
 		minetest.log("action", player:get_player_name().." moves stuff in chest at "..minetest.pos_to_string(pos))
 	end,
-	on_metadata_inventory_put = function(pos, listname, index, stack, player)
+	on_metadata_inventory_put = function(pos, _, _, stack, player)
 		local channel = minetest.get_meta(pos):get_string("channel")
 		local send = function(msg)
 			sendMessage(pos,msg,channel)
@@ -132,7 +132,7 @@ minetest.register_node("digilines:chest", {
 		end
 		minetest.log("action", player:get_player_name().." puts stuff into chest at "..minetest.pos_to_string(pos))
 	end,
-	on_metadata_inventory_take = function(pos, listname, index, stack, player)
+	on_metadata_inventory_take = function(pos, listname, _, stack, player)
 		local meta = minetest.get_meta(pos)
 		local channel = meta:get_string("channel")
 		local inv = meta:get_inventory()

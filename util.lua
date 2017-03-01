@@ -22,9 +22,9 @@ function digilines.rotate_rules_left(rules)
 	local nr={}
 	for i, rule in ipairs(rules) do
 		nr[i]={}
-		nr[i].z=-rules[i].x
-		nr[i].x=rules[i].z
-		nr[i].y=rules[i].y
+		nr[i].z=-rule.x
+		nr[i].x=rule.z
+		nr[i].y=rule.y
 	end
 	return nr
 end
