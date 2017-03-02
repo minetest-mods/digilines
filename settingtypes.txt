@@ -1,0 +1,13 @@
+
+# If enabled, makes some nodes with inventories (like chests) send signals
+# when items are moved in the inventory.
+digilines_enable_inventory (Enable inventory signals) bool true
+
+# Enable or disable the LCD panel with visible text.
+digilines_enable_lcd (Enable LCD) bool true
+
+# Enable or disable the light sensor component.
+digilines_enable_lightsensor (Enable light sensor) bool true
+
+# Enable or disable the real time clock component.
+digilines_enable_rtc (Enable RTC) bool true
