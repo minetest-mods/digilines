@@ -1,6 +1,7 @@
 function digilines.getspec(node)
 	if not minetest.registered_nodes[node.name] then return false end
-	return minetest.registered_nodes[node.name].digiline
+	return minetest.registered_nodes[node.name].digilines or
+			minetest.registered_nodes[node.name].digiline
 end
 
 function digilines.importrules(spec, node)
