@@ -1,3 +1,5 @@
+local pipeworks_enabled = minetest.get_modpath("pipeworks") ~= nil
+
 local function sendMessage(pos, msg, channel)
 	if channel == nil then
 		channel = minetest.get_meta(pos):get_string("channel")
@@ -23,8 +25,8 @@ local function can_insert(pos, stack)
 	return can
 end
 
-local tubeconn = minetest.get_modpath("pipeworks") and "^pipeworks_tube_connection_wooden.png" or ""
-local tubescan = minetest.get_modpath("pipeworks") and function(pos) pipeworks.scan_for_tube_objects(pos) end or nil
+local tubeconn = pipeworks_enabled and "^pipeworks_tube_connection_wooden.png" or ""
+local tubescan = pipeworks_enabled and function(pos) pipeworks.scan_for_tube_objects(pos) end or nil
 
 minetest.register_alias("digilines_inventory:chest", "digilines:chest")
 minetest.register_node("digilines:chest", {
@@ -52,7 +54,8 @@ minetest.register_node("digilines:chest", {
 			"list[current_name;main;0,1;8,4;]"..
 			"field[2,5.5;5,1;channel;Channel;${channel}]"..
 			((default and default.get_hotbar_bg) and default.get_hotbar_bg(0,6) or "")..
-			"list[current_player;main;0,6;8,4;]")
+			"list[current_player;main;0,6;8,4;]"..
+			"listring[]")
 		local inv = meta:get_inventory()
 		inv:set_size("main", 8*4)
 	end,
