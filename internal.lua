@@ -86,6 +86,12 @@ local function queue_dequeue(queue)
 end
 
 function digilines.transmit(pos, channel, msg, checked)
+	local checkedID = minetest.hash_node_position(pos)
+	if checked[checkedID] then
+		return
+	end
+	checked[checkedID]=true
+	
 	digilines.vm_begin()
 	local queue = queue_new()
 	queue_enqueue(queue, pos)
