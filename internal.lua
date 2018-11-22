@@ -90,7 +90,7 @@ function digilines.transmit(pos, channel, msg, checked)
 	if checked[checkedID] then
 		return
 	end
-	checked[checkedID]=true
+	checked[checkedID] = true
 	
 	digilines.vm_begin()
 	local queue = queue_new()
