@@ -129,15 +129,29 @@ local clearscreen = function(pos)
 end
 
 local prepare_writing = function(pos)
-	local lcd_info = lcds[minetest.get_node(pos).param2]
-	if lcd_info == nil then return end
-	local text = minetest.add_entity(
-		{x = pos.x + lcd_info.delta.x,
-		 y = pos.y + lcd_info.delta.y,
-		 z = pos.z + lcd_info.delta.z}, "digilines_lcd:text")
-	text:setyaw(lcd_info.yaw or 0)
-	--* text:setpitch(lcd_info.yaw or 0)
-	return text
+	local existing
+	local objects = minetest.get_objects_inside_radius(pos, 0.5)
+	for _, o in ipairs(objects) do
+		local o_entity = o:get_luaentity()
+		if o_entity and o_entity.name == "digilines_lcd:text" then
+			existing = o_entity
+			break
+		end
+	end
+	if not existing or existing == nil then
+		local lcd_info = lcds[minetest.get_node(pos).param2]
+		if lcd_info == nil then return end
+		local text = minetest.add_entity(
+			{x = pos.x + lcd_info.delta.x,
+			y = pos.y + lcd_info.delta.y,
+			z = pos.z + lcd_info.delta.z}, "digilines_lcd:text")
+		text:setyaw(lcd_info.yaw or 0)
+		return text
+	else
+		local meta = minetest.get_meta(existing.object:getpos())
+		local text = meta:get_string("text")
+		existing.object:set_properties({textures={generate_texture(create_lines(text))}})
+	end
 end
 
 local on_digiline_receive = function(pos, _, channel, msg)
@@ -178,7 +192,7 @@ minetest.register_node("digilines:lcd", {
 		if param2 == 0 or param2 == 1 then
 			minetest.add_node(pos, {name = "digilines:lcd", param2 = 3})
 		end
-		prepare_writing (pos)
+		prepare_writing(pos)
 	end,
 
 	on_construct = function(pos)
@@ -211,11 +225,20 @@ minetest.register_node("digilines:lcd", {
 	light_source = 6,
 })
 
+minetest.register_lbm({
+	label = "Replace Missing Text Entities",
+	name = "digilines:replace_text",
+	nodenames = {"digilines:lcd"},
+	run_at_every_load = true,
+	action = function(pos)
+		prepare_writing(pos)
+	end,
+})
+
 minetest.register_entity(":digilines_lcd:text", {
 	collisionbox = { 0, 0, 0, 0, 0, 0 },
 	visual = "upright_sprite",
 	textures = {},
-
 	on_activate = function(self)
 		local meta = minetest.get_meta(self.object:getpos())
 		local text = meta:get_string("text")
