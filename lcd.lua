@@ -128,16 +128,59 @@ local clearscreen = function(pos)
 	end
 end
 
+local set_texture = function(ent)
+	local meta = minetest.get_meta(ent.object:get_pos())
+	local text = meta:get_string("text")
+	ent.object:set_properties({
+		textures = {
+			generate_texture(create_lines(text))
+		}
+	})
+end
+
+local get_entity = function(pos)
+	local lcd_entity
+	local objects = minetest.get_objects_inside_radius(pos, 0.5)
+	for _, o in ipairs(objects) do
+		local o_entity = o:get_luaentity()
+		if o_entity and o_entity.name == "digilines_lcd:text" then
+			if not lcd_entity then
+				lcd_entity = o_entity
+			else
+				-- Remove extras, if any
+				o:remove()
+			end
+		end
+	end
+	return lcd_entity
+end
+
+local rotate_text = function(pos, param)
+	local entity = get_entity(pos)
+	if not entity then
+		return
+	end
+	local lcd_info = lcds[param or minetest.get_node(pos).param2]
+	if not lcd_info then
+		return
+	end
+	entity.object:set_pos(vector.add(pos, lcd_info.delta))
+	entity.object:set_yaw(lcd_info.yaw or 0)
+end
+
 local prepare_writing = function(pos)
-	local lcd_info = lcds[minetest.get_node(pos).param2]
-	if lcd_info == nil then return end
-	local text = minetest.add_entity(
-		{x = pos.x + lcd_info.delta.x,
-		 y = pos.y + lcd_info.delta.y,
-		 z = pos.z + lcd_info.delta.z}, "digilines_lcd:text")
-	text:setyaw(lcd_info.yaw or 0)
-	--* text:setpitch(lcd_info.yaw or 0)
-	return text
+	local entity = get_entity(pos)
+	if entity then
+		set_texture(entity)
+		rotate_text(pos)
+	end	
+end
+
+local spawn_entity = function(pos)
+	if not get_entity(pos) then
+		minetest.add_entity(pos, "digilines_lcd:text")
+		rotate_text(pos)
+	end
 end
 
 local on_digiline_receive = function(pos, _, channel, msg)
@@ -147,7 +190,7 @@ local on_digiline_receive = function(pos, _, channel, msg)
 
 	meta:set_string("text", msg)
 	meta:set_string("infotext", msg)
-	clearscreen(pos)
+
 	if msg ~= "" then
 		prepare_writing(pos)
 	end
@@ -165,30 +208,34 @@ minetest.register_node("digilines:lcd", {
 	inventory_image = "lcd_lcd.png",
 	wield_image = "lcd_lcd.png",
 	tiles = {"lcd_anyside.png"},
-
 	paramtype = "light",
 	sunlight_propagates = true,
+	light_source = 6,
 	paramtype2 = "wallmounted",
 	node_box = lcd_box,
 	selection_box = lcd_box,
 	groups = {choppy = 3, dig_immediate = 2},
-
-	after_place_node = function (pos)
+	after_place_node = function(pos)
 		local param2 = minetest.get_node(pos).param2
 		if param2 == 0 or param2 == 1 then
 			minetest.add_node(pos, {name = "digilines:lcd", param2 = 3})
 		end
-		prepare_writing (pos)
+		spawn_entity(pos)
+		prepare_writing(pos)
 	end,
-
-	on_construct = function(pos)
-		reset_meta(pos)
+	on_construct = reset_meta,
+	on_destruct = clearscreen,
+	on_punch = function(pos, node, puncher, pointed_thing)
+		if minetest.is_player(puncher) then
+			spawn_entity(pos)
+		end
 	end,
-
-	on_destruct = function(pos)
-		clearscreen(pos)
+	on_rotate = function(pos, node, user, mode, new_param2)
+		if mode ~= screwdriver.ROTATE_FACE then
+			return false
+		end
+		rotate_text(pos, new_param2)
 	end,
-
 	on_receive_fields = function(pos, _, fields, sender)
 		local name = sender:get_player_name()
 		if minetest.is_protected(pos, name) and not minetest.check_player_privs(name, {protection_bypass=true}) then
@@ -199,28 +246,27 @@ minetest.register_node("digilines:lcd", {
 			minetest.get_meta(pos):set_string("channel", fields.channel)
 		end
 	end,
-
-	digiline =
-	{
+	digiline = {
 		receptor = {},
 		effector = {
 			action = on_digiline_receive
 		},
 	},
+})
 
-	light_source = 6,
+minetest.register_lbm({
+	label = "Replace Missing Text Entities",
+	name = "digilines:replace_text",
+	nodenames = {"digilines:lcd"},
+	run_at_every_load = true,
+	action = spawn_entity,
 })
 
 minetest.register_entity(":digilines_lcd:text", {
 	collisionbox = { 0, 0, 0, 0, 0, 0 },
 	visual = "upright_sprite",
 	textures = {},
-
-	on_activate = function(self)
-		local meta = minetest.get_meta(self.object:getpos())
-		local text = meta:get_string("text")
-		self.object:set_properties({textures={generate_texture(create_lines(text))}})
-	end
+	on_activate = set_texture,
 })
 
 minetest.register_craft({
