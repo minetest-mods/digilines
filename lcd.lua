@@ -128,6 +128,12 @@ local clearscreen = function(pos)
 	end
 end
 
+local set_texture = function(ent)
+	local meta = minetest.get_meta(ent.object:getpos())
+	local text = meta:get_string("text")
+	ent.object:set_properties({textures={generate_texture(create_lines(text))}})
+end
+
 local prepare_writing = function(pos)
 	local existing
 	local objects = minetest.get_objects_inside_radius(pos, 0.5)
@@ -138,7 +144,7 @@ local prepare_writing = function(pos)
 			break
 		end
 	end
-	if not existing or existing == nil then
+	if not existing then
 		local lcd_info = lcds[minetest.get_node(pos).param2]
 		if lcd_info == nil then return end
 		local text = minetest.add_entity(
@@ -148,9 +154,7 @@ local prepare_writing = function(pos)
 		text:setyaw(lcd_info.yaw or 0)
 		return text
 	else
-		local meta = minetest.get_meta(existing.object:getpos())
-		local text = meta:get_string("text")
-		existing.object:set_properties({textures={generate_texture(create_lines(text))}})
+		set_texture(existing)
 	end
 end
 
@@ -239,11 +243,7 @@ minetest.register_entity(":digilines_lcd:text", {
 	collisionbox = { 0, 0, 0, 0, 0, 0 },
 	visual = "upright_sprite",
 	textures = {},
-	on_activate = function(self)
-		local meta = minetest.get_meta(self.object:getpos())
-		local text = meta:get_string("text")
-		self.object:set_properties({textures={generate_texture(create_lines(text))}})
-	end
+	on_activate = set_texture,
 })
 
 minetest.register_craft({
