@@ -129,33 +129,40 @@ local clearscreen = function(pos)
 end
 
 local set_texture = function(ent)
-	local meta = minetest.get_meta(ent.object:getpos())
+	local meta = minetest.get_meta(ent.object:get_pos())
 	local text = meta:get_string("text")
-	ent.object:set_properties({textures={generate_texture(create_lines(text))}})
+	ent.object:set_properties({
+		textures = {
+			generate_texture(create_lines(text))
+		}
+	})
 end
 
 local prepare_writing = function(pos)
-	local existing
+	local lcd_entity
 	local objects = minetest.get_objects_inside_radius(pos, 0.5)
 	for _, o in ipairs(objects) do
 		local o_entity = o:get_luaentity()
 		if o_entity and o_entity.name == "digilines_lcd:text" then
-			existing = o_entity
-			break
+			if not lcd_entity then
+				lcd_entity = o_entity
+			else
+				-- Remove extras, if any
+				o:remove()
+			end
 		end
 	end
-	if not existing then
+	if not lcd_entity then
 		local lcd_info = lcds[minetest.get_node(pos).param2]
-		if lcd_info == nil then return end
-		local text = minetest.add_entity(
-			{x = pos.x + lcd_info.delta.x,
-			y = pos.y + lcd_info.delta.y,
-			z = pos.z + lcd_info.delta.z}, "digilines_lcd:text")
-		text:setyaw(lcd_info.yaw or 0)
+		if not lcd_info then
+			return
+		end
+		local text = minetest.add_entity(vector.add(pos, lcd_info.delta), "digilines_lcd:text")
+		text:set_yaw(lcd_info.yaw or 0)
 		return text
-	else
-		set_texture(existing)
 	end
+	
+	set_texture(lcd_entity)
 end
 
 local on_digiline_receive = function(pos, _, channel, msg)
@@ -183,14 +190,13 @@ minetest.register_node("digilines:lcd", {
 	inventory_image = "lcd_lcd.png",
 	wield_image = "lcd_lcd.png",
 	tiles = {"lcd_anyside.png"},
-
 	paramtype = "light",
 	sunlight_propagates = true,
+	light_source = 6,
 	paramtype2 = "wallmounted",
 	node_box = lcd_box,
 	selection_box = lcd_box,
 	groups = {choppy = 3, dig_immediate = 2},
-
 	after_place_node = function (pos)
 		local param2 = minetest.get_node(pos).param2
 		if param2 == 0 or param2 == 1 then
@@ -198,15 +204,8 @@ minetest.register_node("digilines:lcd", {
 		end
 		prepare_writing(pos)
 	end,
-
-	on_construct = function(pos)
-		reset_meta(pos)
-	end,
-
-	on_destruct = function(pos)
-		clearscreen(pos)
-	end,
-
+	on_construct = reset_meta,
+	on_destruct = clearscreen,
 	on_receive_fields = function(pos, _, fields, sender)
 		local name = sender:get_player_name()
 		if minetest.is_protected(pos, name) and not minetest.check_player_privs(name, {protection_bypass=true}) then
@@ -217,16 +216,12 @@ minetest.register_node("digilines:lcd", {
 			minetest.get_meta(pos):set_string("channel", fields.channel)
 		end
 	end,
-
-	digiline =
-	{
+	digiline = {
 		receptor = {},
 		effector = {
 			action = on_digiline_receive
 		},
 	},
-
-	light_source = 6,
 })
 
 minetest.register_lbm({
@@ -234,9 +229,7 @@ minetest.register_lbm({
 	name = "digilines:replace_text",
 	nodenames = {"digilines:lcd"},
 	run_at_every_load = true,
-	action = function(pos)
-		prepare_writing(pos)
-	end,
+	action = prepare_writing,
 })
 
 minetest.register_entity(":digilines_lcd:text", {
