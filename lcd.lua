@@ -119,7 +119,6 @@ local reset_meta = function(pos)
 end
 
 local clearscreen = function(pos)
-	minetest.chat_send_all("clearing screen at "..minetest.pos_to_string(pos))
 	local objects = minetest.get_objects_inside_radius(pos, 0.5)
 	for _, o in ipairs(objects) do
 		local o_entity = o:get_luaentity()
