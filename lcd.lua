@@ -119,6 +119,7 @@ local reset_meta = function(pos)
 end
 
 local clearscreen = function(pos)
+	minetest.chat_send_all("clearing screen at "..minetest.pos_to_string(pos))
 	local objects = minetest.get_objects_inside_radius(pos, 0.5)
 	for _, o in ipairs(objects) do
 		local o_entity = o:get_luaentity()
@@ -138,7 +139,7 @@ local set_texture = function(ent)
 	})
 end
 
-local prepare_writing = function(pos)
+local get_entity = function(pos)
 	local lcd_entity
 	local objects = minetest.get_objects_inside_radius(pos, 0.5)
 	for _, o in ipairs(objects) do
@@ -152,7 +153,11 @@ local prepare_writing = function(pos)
 			end
 		end
 	end
-	if not lcd_entity then
+	return lcd_entity
+end
+
+local spawn_entity = function(pos)
+	if not get_entity(pos) then
 		local lcd_info = lcds[minetest.get_node(pos).param2]
 		if not lcd_info then
 			return
@@ -161,8 +166,12 @@ local prepare_writing = function(pos)
 		text:set_yaw(lcd_info.yaw or 0)
 		return text
 	end
-	
-	set_texture(lcd_entity)
+end
+
+local prepare_writing = function(pos)
+	if get_entity(pos) then
+		set_texture(get_entity(pos))
+	end	
 end
 
 local on_digiline_receive = function(pos, _, channel, msg)
@@ -197,15 +206,21 @@ minetest.register_node("digilines:lcd", {
 	node_box = lcd_box,
 	selection_box = lcd_box,
 	groups = {choppy = 3, dig_immediate = 2},
-	after_place_node = function (pos)
+	after_place_node = function(pos)
 		local param2 = minetest.get_node(pos).param2
 		if param2 == 0 or param2 == 1 then
 			minetest.add_node(pos, {name = "digilines:lcd", param2 = 3})
 		end
+		spawn_entity(pos)
 		prepare_writing(pos)
 	end,
 	on_construct = reset_meta,
 	on_destruct = clearscreen,
+	on_punch = function(pos, node, puncher, pointed_thing)
+		if puncher:is_player() and minetest.get_player_by_name(puncher:get_player_name()) then
+			spawn_entity(pos)
+		end
+	end,
 	on_receive_fields = function(pos, _, fields, sender)
 		local name = sender:get_player_name()
 		if minetest.is_protected(pos, name) and not minetest.check_player_privs(name, {protection_bypass=true}) then
@@ -229,7 +244,7 @@ minetest.register_lbm({
 	name = "digilines:replace_text",
 	nodenames = {"digilines:lcd"},
 	run_at_every_load = true,
-	action = prepare_writing,
+	action = spawn_entity,
 })
 
 minetest.register_entity(":digilines_lcd:text", {
