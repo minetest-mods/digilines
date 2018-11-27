@@ -168,8 +168,9 @@ local spawn_entity = function(pos)
 end
 
 local prepare_writing = function(pos)
-	if get_entity(pos) then
-		set_texture(get_entity(pos))
+	local entity = get_entity(pos)
+	if entity then
+		set_texture(entity)
 	end	
 end
 
