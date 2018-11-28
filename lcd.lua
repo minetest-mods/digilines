@@ -216,7 +216,7 @@ minetest.register_node("digilines:lcd", {
 	on_construct = reset_meta,
 	on_destruct = clearscreen,
 	on_punch = function(pos, node, puncher, pointed_thing)
-		if puncher:is_player() and minetest.get_player_by_name(puncher:get_player_name()) then
+		if minetest.is_player(puncher) then
 			spawn_entity(pos)
 		end
 	end,
