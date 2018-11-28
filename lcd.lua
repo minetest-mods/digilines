@@ -163,7 +163,6 @@ local spawn_entity = function(pos)
 		end
 		local text = minetest.add_entity(vector.add(pos, lcd_info.delta), "digilines_lcd:text")
 		text:set_yaw(lcd_info.yaw or 0)
-		return text
 	end
 end
 
