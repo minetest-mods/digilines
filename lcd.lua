@@ -170,6 +170,12 @@ local prepare_writing = function(pos)
 	local entity = get_entity(pos)
 	if entity then
 		set_texture(entity)
+		local lcd_info = lcds[minetest.get_node(pos).param2]
+		if not lcd_info then
+			return
+		end
+		entity.object:set_pos(vector.add(pos, lcd_info.delta))
+		entity.object:set_yaw(lcd_info.yaw or 0)
 	end	
 end
 
