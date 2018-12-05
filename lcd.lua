@@ -155,28 +155,32 @@ local get_entity = function(pos)
 	return lcd_entity
 end
 
-local spawn_entity = function(pos)
-	if not get_entity(pos) then
-		local lcd_info = lcds[minetest.get_node(pos).param2]
-		if not lcd_info then
-			return
-		end
-		local text = minetest.add_entity(vector.add(pos, lcd_info.delta), "digilines_lcd:text")
-		text:set_yaw(lcd_info.yaw or 0)
+local rotate_text = function(pos, param)
+	local entity = get_entity(pos)
+	if not entity then
+		return
 	end
+	local lcd_info = lcds[param or minetest.get_node(pos).param2]
+	if not lcd_info then
+		return
+	end
+	entity.object:set_pos(vector.add(pos, lcd_info.delta))
+	entity.object:set_yaw(lcd_info.yaw or 0)
 end
 
 local prepare_writing = function(pos)
 	local entity = get_entity(pos)
 	if entity then
 		set_texture(entity)
-		local lcd_info = lcds[minetest.get_node(pos).param2]
-		if not lcd_info then
-			return
-		end
-		entity.object:set_pos(vector.add(pos, lcd_info.delta))
-		entity.object:set_yaw(lcd_info.yaw or 0)
+		rotate_text(pos)
 	end	
+end
+
+local spawn_entity = function(pos)
+	if not get_entity(pos) then
+		local text = minetest.add_entity(pos, "digilines_lcd:text")
+		rotate_text(pos)
+	end
 end
 
 local on_digiline_receive = function(pos, _, channel, msg)
@@ -225,6 +229,12 @@ minetest.register_node("digilines:lcd", {
 		if minetest.is_player(puncher) then
 			spawn_entity(pos)
 		end
+	end,
+	on_rotate = function(pos, node, user, mode, new_param2)
+		if mode ~= screwdriver.ROTATE_FACE then
+			return false
+		end
+		rotate_text(pos, new_param2)
 	end,
 	on_receive_fields = function(pos, _, fields, sender)
 		local name = sender:get_player_name()
