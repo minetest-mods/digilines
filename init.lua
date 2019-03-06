@@ -64,19 +64,19 @@ minetest.register_craft({
 	}
 })
 
--- former submods
-if minetest.is_yes(minetest.setting_get("digilines_enable_inventory") or true) then
+-- For minetest 0.4 support returned nil are also tested:  ~= false
+if minetest.settings:get_bool("digilines_enable_inventory", true) ~= false then
 	dofile(modpath .. "/inventory.lua")
 end
 
-if minetest.is_yes(minetest.setting_get("digilines_enable_lcd") or true) then
+if minetest.settings:get_bool("digilines_enable_lcd", true) ~= false then
 	dofile(modpath .. "/lcd.lua")
 end
 
-if minetest.is_yes(minetest.setting_get("digilines_enable_lightsensor") or true) then
+if minetest.settings:get_bool("digilines_enable_lightsensor", true) ~= false then
 	dofile(modpath .. "/lightsensor.lua")
 end
 
-if minetest.is_yes(minetest.setting_get("digilines_enable_rtc") or true) then
+if minetest.settings:get_bool("digilines_enable_rtc", true) ~= false then
 	dofile(modpath .. "/rtc.lua")
 end
