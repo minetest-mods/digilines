@@ -1,5 +1,7 @@
 
 read_globals = {
+	"vector",
+	"screwdriver",
 	"minetest",
 	"default",
 	"pipeworks",
