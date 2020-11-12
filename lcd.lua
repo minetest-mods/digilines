@@ -21,7 +21,7 @@ else
 end
 
 -- CONSTANTS
-local LCD_WITH = 100
+local LCD_WIDTH = 100
 local LCD_PADDING = 8
 
 local LINE_LENGTH = 12
@@ -87,7 +87,7 @@ local generate_line = function(s, ypos)
 	width = width - 1
 
 	local texture = ""
-	local xpos = math.floor((LCD_WITH - 2 * LCD_PADDING - width) / 2 + LCD_PADDING)
+	local xpos = math.floor((LCD_WIDTH - 2 * LCD_PADDING - width) / 2 + LCD_PADDING)
 	for ii = 1, #parsed do
 		texture = texture..":"..xpos..","..ypos.."="..parsed[ii]..".png"
 		xpos = xpos + CHAR_WIDTH + 1
@@ -96,7 +96,7 @@ local generate_line = function(s, ypos)
 end
 
 local generate_texture = function(lines)
-	local texture = "[combine:"..LCD_WITH.."x"..LCD_WITH
+	local texture = "[combine:"..LCD_WIDTH.."x"..LCD_WIDTH
 	local ypos = 16
 	for i = 1, #lines do
 		texture = texture..generate_line(lines[i], ypos)
