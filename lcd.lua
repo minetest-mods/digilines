@@ -87,7 +87,7 @@ local generate_line = function(s, ypos)
 	width = width - 1
 
 	local texture = ""
-	local xpos = math.floor((LCD_WIDTH - 2 * LCD_PADDING - width) / 2 + LCD_PADDING)
+	local xpos = math.floor((LCD_WIDTH - 2 * LCD_PADDING - width) / 2)
 	for ii = 1, #parsed do
 		texture = texture..":"..xpos..","..ypos.."="..parsed[ii]..".png"
 		xpos = xpos + CHAR_WIDTH + 1
