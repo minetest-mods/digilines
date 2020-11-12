@@ -34,23 +34,27 @@ local create_lines = function(text)
 	local line = ""
 	local line_num = 1
 	local tab = {}
-	for word in string.gmatch(text, "%S+") do
-		if string.len(line)+string.len(word) < LINE_LENGTH and word ~= "|" then
-			if line ~= "" then
-				line = line.." "..word
+	if #text <= LINE_LENGTH then
+		line = text
+	else
+		for word in string.gmatch(text, "%S+") do
+			if string.len(line)+string.len(word) < LINE_LENGTH and word ~= "|" then
+				if line ~= "" then
+					line = line.." "..word
+				else
+					line = word
+				end
 			else
-				line = word
-			end
-		else
-			table.insert(tab, line)
-			if word ~= "|" then
-				line = word
-			else
-				line = ""
-			end
-			line_num = line_num+1
-			if line_num > NUMBER_OF_LINES then
-				return tab
+				table.insert(tab, line)
+				if word ~= "|" then
+					line = word
+				else
+					line = ""
+				end
+				line_num = line_num+1
+				if line_num > NUMBER_OF_LINES then
+					return tab
+				end
 			end
 		end
 	end
