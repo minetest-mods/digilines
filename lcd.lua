@@ -73,6 +73,9 @@ local generate_line = function(s, ypos)
 			i = i + 2
 		else
 			print("[digilines] W: LCD: unknown symbol in '"..s.."' at "..i)
+			if charmap[" "] ~= nil then
+				file = charmap[" "]
+			end
 			i = i + 1
 		end
 		if file ~= nil then
