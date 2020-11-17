@@ -35,7 +35,7 @@ local create_lines = function(text)
 	local line_num = 1
 	local tab = {}
 	for word in string.gmatch(text, "%S*") do
-		if string.len(line)+string.len(word) < LINE_LENGTH and word ~= "|" then
+		if (string.len(line) and string.len(line)+1) + string.len(word) <= LINE_LENGTH and word ~= "|" then
 			if line ~= "" then
 				line = line.." "..word
 			else
