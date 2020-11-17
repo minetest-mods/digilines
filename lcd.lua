@@ -34,7 +34,7 @@ local create_lines = function(text)
 	local line = ""
 	local line_num = 1
 	local tab = {}
-	for word in string.gmatch(text, "%S+") do
+	for word in string.gmatch(text, "%S*") do
 		if string.len(line)+string.len(word) < LINE_LENGTH and word ~= "|" then
 			if line ~= "" then
 				line = line.." "..word
@@ -43,7 +43,9 @@ local create_lines = function(text)
 			end
 		else
 			table.insert(tab, line)
-			if word ~= "|" then
+			if word == " " then
+				-- don't at the space since we have a line break
+			elseif word ~= "|" then
 				line = word
 			else
 				line = ""
