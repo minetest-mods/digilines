@@ -30,33 +30,88 @@ local NUMBER_OF_LINES = 5
 local LINE_HEIGHT = 14
 local CHAR_WIDTH = 5
 
+local split = function(s, pat)
+	-- adapted from https://stackoverflow.com/a/1647577/4067384
+	pat = pat or '%s+'
+	local st, g = 1, string.gmatch(s, "()("..pat..")")
+	local function getter(segs, seps, sep, cap1, ...)
+		st = sep and seps + #sep
+		return string.sub(s, segs, (seps or 0) - 1), cap1 or sep, ...
+	end
+	return function() if st then return getter(st, g()) end end
+end
+
 local create_lines = function(text)
+	--[[
+	  Typeset the lines according to these rules (in order of subjective significance):
+	  - words that fit on the screen but would let the current line overflow are placed on a new line instead
+	  - " | " always forces a linebreak
+	  - spaces are included, except when there is a linebreak anyway
+	  - words with more characters than fit on screen are just chopped up, filling the lines as full as possible
+	  - don't bother typesetting more lines than fit on screen
+	  - if we are on the last line that will fit on screen
+	]]--
 	local line = ""
 	local line_num = 1
 	local tab = {}
-	for word in string.gmatch(text, "%S*") do
-		if (string.len(line) and string.len(line)+1) + string.len(word) <= LINE_LENGTH and word ~= "|" then
-			if line ~= "" then
-				line = line.." "..word
+	local flush_line_and_check_for_return = function()
+		table.insert(tab, line)
+		line_num = line_num+1
+		if line_num > NUMBER_OF_LINES then
+			return true
+		end
+		line = ""
+	end
+	for par in split(text, " | ") do
+		for word in split(par, "%s") do
+			if string.len(word) <= LINE_LENGTH and line_num < NUMBER_OF_LINES then
+				local line_len = string.len(line)
+				if line_len > 0 then
+					-- remember the space
+					line_len = line_len + 1
+				end
+				if line_len + string.len(word) <= LINE_LENGTH then
+					if line_len > 0 then
+						line = line.." "..word
+					else
+						line = word
+					end
+				else
+					if word == " " then
+						-- don't add the space since we have a line break
+					else
+						if line_len > 0 then
+							-- ok, we need the new line
+							if flush_line_and_check_for_return() then return tab end
+						end
+						line = word
+					end
+				end
 			else
-				line = word
-			end
-		else
-			table.insert(tab, line)
-			if word == " " then
-				-- don't at the space since we have a line break
-			elseif word ~= "|" then
-				line = word
-			else
-				line = ""
-			end
-			line_num = line_num+1
-			if line_num > NUMBER_OF_LINES then
-				return tab
+				-- chop up word to make it fit
+				local remaining
+				while true do
+					remaining = LINE_LENGTH - string.len(line)
+					if remaining < LINE_LENGTH then
+						line = line .. " "
+						remaining = remaining - 1
+					end
+					if remaining - string.len(word) < 0 then
+						line = line .. string.sub(word, 1, math.min(remaining, string.len(word)))
+						word = string.sub(word, remaining+1, string.len(word))
+						if flush_line_and_check_for_return() then return tab end
+					else
+						-- used up the word
+						line = line .. word
+						break
+					end
+				end
 			end
 		end
+		-- end of paragraph
+		if flush_line_and_check_for_return() then return tab end
+		line = ""
 	end
-	table.insert(tab, line)
 	return tab
 end
 
