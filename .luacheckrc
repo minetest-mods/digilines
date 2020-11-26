@@ -1,12 +1,13 @@
 
 read_globals = {
-	"vector",
-	"screwdriver",
-	"minetest",
-	"default",
-	"pipeworks",
-	"dump",
-	"VoxelArea",
+    "vector",
+    "screwdriver",
+    "minetest",
+    "default",
+    "pipeworks",
+    "dump",
+    "VoxelArea",
+    "ItemStack",
 }
 
 globals = {

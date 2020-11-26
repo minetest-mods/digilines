@@ -229,7 +229,7 @@ minetest.register_node("digilines:chest", {
 		last_inventory_take_index = index
 		return stack:get_count()
 	end,
-	on_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
+	on_metadata_inventory_move = function(pos, _, from_index, _, to_index, count, player)
 		-- See what would happen if we were to move the items back from in the
 		-- opposite direction. In the event of a normal move, this must
 		-- succeed, because a normal move subtracts some items from the from
