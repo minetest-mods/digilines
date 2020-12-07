@@ -98,7 +98,7 @@ local create_lines = function(text)
 					end
 					if remaining < string.len(word) then
 						line = line .. string.sub(word, 1, remaining)
-						word = string.sub(word, remaining+1, string.len(word))
+						word = string.sub(word, remaining+1)
 						if flush_line_and_check_for_return() then return tab end
 					else
 						-- used up the word
