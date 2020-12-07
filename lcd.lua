@@ -30,6 +30,11 @@ local NUMBER_OF_LINES = 5
 local LINE_HEIGHT = 14
 local CHAR_WIDTH = 5
 
+
+assert(CHAR_WIDTH * LINE_LENGTH <= LCD_WIDTH - LCD_PADDING*2, "LCD: Lines set too long!")
+assert(LINE_HEIGHT * NUMBER_OF_LINES <= LCD_WIDTH - LCD_PADDING*2, "LCD: Too many lines!")
+
+
 local split = function(s, pat)
 	-- adapted from https://stackoverflow.com/a/1647577/4067384
 	-- simplified for our only usecase
@@ -139,7 +144,7 @@ local generate_line = function(s, ypos)
 			i = i + 1
 		end
 		if file ~= nil then
-			width = width + CHAR_WIDTH
+			width = width + CHAR_WIDTH + 1
 			table.insert(parsed, file)
 			chars = chars + 1
 		end
@@ -147,7 +152,7 @@ local generate_line = function(s, ypos)
 	width = width - 1
 
 	local texture = ""
-	local xpos = math.floor((LCD_WIDTH - 2 * LCD_PADDING - width) / 2)
+	local xpos = math.floor((LCD_WIDTH - width) / 2)
 	for ii = 1, #parsed do
 		texture = texture..":"..xpos..","..ypos.."="..parsed[ii]..".png"
 		xpos = xpos + CHAR_WIDTH + 1
