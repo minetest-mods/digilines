@@ -5,7 +5,6 @@
 -- load characters map
 local chars_file = io.open(minetest.get_modpath("digilines").."/characters", "r")
 local charmap = {}
-local max_chars = 12
 if not chars_file then
 	print("[digilines] E: LCD: character map file not found")
 else
@@ -31,8 +30,8 @@ local LINE_HEIGHT = 14
 local CHAR_WIDTH = 5
 
 
-assert(CHAR_WIDTH * LINE_LENGTH <= LCD_WIDTH - LCD_PADDING*2, "LCD: Lines set too long!")
-assert(LINE_HEIGHT * NUMBER_OF_LINES <= LCD_WIDTH - LCD_PADDING*2, "LCD: Too many lines!")
+assert((CHAR_WIDTH+1) * LINE_LENGTH <= LCD_WIDTH - LCD_PADDING*2, "LCD: Lines set too long!")
+assert((LINE_HEIGHT+1) * NUMBER_OF_LINES <= LCD_WIDTH - LCD_PADDING*2, "LCD: Too many lines!")
 
 
 local split = function(s, pat)
@@ -128,7 +127,7 @@ local generate_line = function(s, ypos)
 	local parsed = {}
 	local width = 0
 	local chars = 0
-	while chars < max_chars and i <= #s do
+	while chars < LINE_LENGTH and i <= #s do
 		local file = nil
 		if charmap[s:sub(i, i)] ~= nil then
 			file = charmap[s:sub(i, i)]
@@ -162,7 +161,7 @@ end
 
 local generate_texture = function(lines)
 	local texture = "[combine:"..LCD_WIDTH.."x"..LCD_WIDTH
-	local ypos = 16
+	local ypos = math.floor((LCD_WIDTH - LINE_HEIGHT*NUMBER_OF_LINES) / 2)
 	for i = 1, #lines do
 		texture = texture..generate_line(lines[i], ypos)
 		ypos = ypos + LINE_HEIGHT
