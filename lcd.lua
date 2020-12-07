@@ -32,13 +32,16 @@ local CHAR_WIDTH = 5
 
 local split = function(s, pat)
 	-- adapted from https://stackoverflow.com/a/1647577/4067384
-	pat = pat or '%s+'
-	local st, g = 1, string.gmatch(s, "()("..pat..")")
-	local function getter(segs, seps, sep, cap1, ...)
-		st = sep and seps + #sep
-		return string.sub(s, segs, (seps or 0) - 1), cap1 or sep, ...
+	-- simplified for our only usecase
+	local st, g = 1, s:gmatch("()("..pat..")")
+	local function getter()
+		if st then
+			local segs, seps, sep = st, g()
+			st = sep and seps + #sep
+			return s:sub(segs, (seps or 0) - 1)
+		end
 	end
-	return function() if st then return getter(st, g()) end end
+	return getter
 end
 
 local create_lines = function(text)
