@@ -5,7 +5,6 @@
 -- load characters map
 local chars_file = io.open(minetest.get_modpath("digilines").."/characters", "r")
 local charmap = {}
-local max_chars = 12
 if not chars_file then
 	print("[digilines] E: LCD: character map file not found")
 else
@@ -21,7 +20,7 @@ else
 end
 
 -- CONSTANTS
-local LCD_WITH = 100
+local LCD_WIDTH = 100
 local LCD_PADDING = 8
 
 local LINE_LENGTH = 12
@@ -30,31 +29,96 @@ local NUMBER_OF_LINES = 5
 local LINE_HEIGHT = 14
 local CHAR_WIDTH = 5
 
+
+assert((CHAR_WIDTH+1) * LINE_LENGTH <= LCD_WIDTH - LCD_PADDING*2, "LCD: Lines set too long!")
+assert((LINE_HEIGHT+1) * NUMBER_OF_LINES <= LCD_WIDTH - LCD_PADDING*2, "LCD: Too many lines!")
+
+
+local split = function(s, pat)
+	-- adapted from https://stackoverflow.com/a/1647577/4067384
+	-- simplified for our only usecase
+	local st, g = 1, s:gmatch("()("..pat..")")
+	local function getter()
+		if st then
+			local segs, seps, sep = st, g()
+			st = sep and seps + #sep
+			return s:sub(segs, (seps or 0) - 1)
+		end
+	end
+	return getter
+end
+
 local create_lines = function(text)
+	--[[
+	  Typeset the lines according to these rules (in order of subjective significance):
+	  - words that fit on the screen but would let the current line overflow are placed on a new line instead
+	  - " | " always forces a linebreak
+	  - spaces are included, except when there is a linebreak anyway
+	  - words with more characters than fit on screen are just chopped up, filling the lines as full as possible
+	  - don't bother typesetting more lines than fit on screen
+	  - if we are on the last line that will fit on screen
+	]]--
 	local line = ""
 	local line_num = 1
 	local tab = {}
-	for word in string.gmatch(text, "%S+") do
-		if string.len(line)+string.len(word) < LINE_LENGTH and word ~= "|" then
-			if line ~= "" then
-				line = line.." "..word
+	local flush_line_and_check_for_return = function()
+		table.insert(tab, line)
+		line_num = line_num+1
+		if line_num > NUMBER_OF_LINES then
+			return true
+		end
+		line = ""
+	end
+	for par in split(text, " | ") do
+		for word in split(par, "%s") do
+			if string.len(word) <= LINE_LENGTH and line_num < NUMBER_OF_LINES then
+				local line_len = string.len(line)
+				if line_len > 0 then
+					-- remember the space
+					line_len = line_len + 1
+				end
+				if line_len + string.len(word) <= LINE_LENGTH then
+					if line_len > 0 then
+						line = line.." "..word
+					else
+						line = word
+					end
+				else
+					if word == " " then
+						-- don't add the space since we have a line break
+					else
+						if line_len > 0 then
+							-- ok, we need the new line
+							if flush_line_and_check_for_return() then return tab end
+						end
+						line = word
+					end
+				end
 			else
-				line = word
-			end
-		else
-			table.insert(tab, line)
-			if word ~= "|" then
-				line = word
-			else
-				line = ""
-			end
-			line_num = line_num+1
-			if line_num > NUMBER_OF_LINES then
-				return tab
+				-- chop up word to make it fit
+				local remaining
+				while true do
+					remaining = LINE_LENGTH - string.len(line)
+					if remaining < LINE_LENGTH then
+						line = line .. " "
+						remaining = remaining - 1
+					end
+					if remaining < string.len(word) then
+						line = line .. string.sub(word, 1, remaining)
+						word = string.sub(word, remaining+1)
+						if flush_line_and_check_for_return() then return tab end
+					else
+						-- used up the word
+						line = line .. word
+						break
+					end
+				end
 			end
 		end
+		-- end of paragraph
+		if flush_line_and_check_for_return() then return tab end
+		line = ""
 	end
-	table.insert(tab, line)
 	return tab
 end
 
@@ -63,7 +127,7 @@ local generate_line = function(s, ypos)
 	local parsed = {}
 	local width = 0
 	local chars = 0
-	while chars < max_chars and i <= #s do
+	while chars < LINE_LENGTH and i <= #s do
 		local file = nil
 		if charmap[s:sub(i, i)] ~= nil then
 			file = charmap[s:sub(i, i)]
@@ -73,10 +137,13 @@ local generate_line = function(s, ypos)
 			i = i + 2
 		else
 			print("[digilines] W: LCD: unknown symbol in '"..s.."' at "..i)
+			if charmap[" "] ~= nil then
+				file = charmap[" "]
+			end
 			i = i + 1
 		end
 		if file ~= nil then
-			width = width + CHAR_WIDTH
+			width = width + CHAR_WIDTH + 1
 			table.insert(parsed, file)
 			chars = chars + 1
 		end
@@ -84,7 +151,7 @@ local generate_line = function(s, ypos)
 	width = width - 1
 
 	local texture = ""
-	local xpos = math.floor((LCD_WITH - 2 * LCD_PADDING - width) / 2 + LCD_PADDING)
+	local xpos = math.floor((LCD_WIDTH - width) / 2)
 	for ii = 1, #parsed do
 		texture = texture..":"..xpos..","..ypos.."="..parsed[ii]..".png"
 		xpos = xpos + CHAR_WIDTH + 1
@@ -93,8 +160,8 @@ local generate_line = function(s, ypos)
 end
 
 local generate_texture = function(lines)
-	local texture = "[combine:"..LCD_WITH.."x"..LCD_WITH
-	local ypos = 16
+	local texture = "[combine:"..LCD_WIDTH.."x"..LCD_WIDTH
+	local ypos = math.floor((LCD_WIDTH - LINE_HEIGHT*NUMBER_OF_LINES) / 2)
 	for i = 1, #lines do
 		texture = texture..generate_line(lines[i], ypos)
 		ypos = ypos + LINE_HEIGHT
