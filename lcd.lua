@@ -313,7 +313,7 @@ minetest.register_node("digilines:lcd", {
 			minetest.get_meta(pos):set_string("channel", fields.channel)
 		end
 	end,
-	digiline = {
+	digilines = {
 		receptor = {},
 		effector = {
 			action = on_digiline_receive

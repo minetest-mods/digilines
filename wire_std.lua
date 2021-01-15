@@ -90,7 +90,7 @@ for zmy=0, 1 do
 		paramtype = "light",
 		paramtype2 = "facedir",
 		sunlight_propagates = true,
-		digiline =
+		digilines =
 		{
 			wire =
 			{
