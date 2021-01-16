@@ -240,7 +240,7 @@ local prepare_writing = function(pos)
 	if entity then
 		set_texture(entity)
 		rotate_text(pos)
-	end	
+	end
 end
 
 local spawn_entity = function(pos)
@@ -292,12 +292,12 @@ minetest.register_node("digilines:lcd", {
 	end,
 	on_construct = reset_meta,
 	on_destruct = clearscreen,
-	on_punch = function(pos, node, puncher, pointed_thing)
+	on_punch = function(pos, _, puncher, _)
 		if minetest.is_player(puncher) then
 			spawn_entity(pos)
 		end
 	end,
-	on_rotate = function(pos, node, user, mode, new_param2)
+	on_rotate = function(pos, _, _, mode, new_param2)
 		if mode ~= screwdriver.ROTATE_FACE then
 			return false
 		end
@@ -340,7 +340,10 @@ minetest.register_craft({
 	output = "digilines:lcd 2",
 	recipe = {
 		{"default:steel_ingot", "digilines:wire_std_00000000", "default:steel_ingot"},
-		{"mesecons_lightstone:lightstone_green_off","mesecons_lightstone:lightstone_green_off","mesecons_lightstone:lightstone_green_off"},
+		{"mesecons_lightstone:lightstone_green_off",
+		"mesecons_lightstone:lightstone_green_off",
+		"mesecons_lightstone:lightstone_green_off"},
+
 		{"default:glass","default:glass","default:glass"}
 	}
 })

@@ -1,6 +1,8 @@
 Digilines
 ==========
 
+[![Build status](https://github.com/minetest-mods/digilines/workflows/build/badge.svg)](https://github.com/minetest-mods/digilines/actions)
+
 - The minetest counterpart for bus systems like i2c, SPI, RS232, USB -
 - Minetest 5.0.0+ is required to use this mod.
 

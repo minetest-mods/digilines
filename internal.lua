@@ -92,7 +92,7 @@ function digilines.transmit(pos, channel, msg, checked)
 		return
 	end
 	checked[checkedID] = true
-	
+
 	digilines.vm_begin()
 	local queue = queue_new()
 	queue_enqueue(queue, pos)
@@ -112,9 +112,9 @@ function digilines.transmit(pos, channel, msg, checked)
 				for _, rule in ipairs(rules) do
 					local nextPos = digilines.addPosRule(curPos, rule)
 					if digilines.rules_link(curPos, nextPos) then
-						local checkedID = minetest.hash_node_position(nextPos)
-						if not checked[checkedID] then
-							checked[checkedID] = true
+						local checkedID2 = minetest.hash_node_position(nextPos)
+						if not checked[checkedID2] then
+							checked[checkedID2] = true
 							queue_enqueue(queue, nextPos)
 						end
 					end

@@ -7,6 +7,7 @@ read_globals = {
 	"pipeworks",
 	"dump",
 	"VoxelArea",
+	"ItemStack",
 }
 
 globals = {
