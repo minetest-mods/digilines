@@ -84,6 +84,7 @@ local create_lines = function(text)
 						line = word
 					end
 				else
+					-- don't add the space since we have a line break
 					if word ~= " " then
 						if line_len > 0 then
 							-- ok, we need the new line
