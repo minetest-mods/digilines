@@ -1,15 +1,12 @@
-minetest.register_on_placenode(function(pos, node)
-	if minetest.registered_nodes[node.name].digiline then
-		digilines.update_autoconnect(pos)
-	end
-end)
 
-minetest.register_on_dignode(function(pos, node)
-	if minetest.registered_nodes[node.name] and minetest.registered_nodes[node.name].digiline then
--- need to make sure that node exists (unknown nodes!)
+local function check_and_update(pos, node)
+	if digilines.getspec(node) then
 		digilines.update_autoconnect(pos)
 	end
-end)
+end
+
+minetest.register_on_placenode(check_and_update)
+minetest.register_on_dignode(check_and_update)
 
 function digilines.update_autoconnect(pos, secondcall)
 	local xppos = {x=pos.x+1, y=pos.y, z=pos.z}
@@ -42,8 +39,7 @@ function digilines.update_autoconnect(pos, secondcall)
 		digilines.update_autoconnect(zmympos, true)
 	end
 
-	local def = minetest.registered_nodes[minetest.get_node(pos).name]
-	local digilinespec = def and def.digiline
+	local digilinespec = digilines.getspec(minetest.get_node(pos))
 	if not (digilinespec and digilinespec.wire and
 			digilinespec.wire.use_autoconnect) then
 		return nil

@@ -35,7 +35,7 @@ minetest.register_node("digilines:rtc", {
 	groups = {dig_immediate=2},
 	selection_box = rtc_selbox,
 	node_box = rtc_nodebox,
-	digiline =
+	digilines =
 	{
 		receptor = {},
 		effector = {

@@ -97,7 +97,7 @@ minetest.register_node("digilines:chest", {
 			minetest.get_meta(pos):set_string("channel",fields.channel)
 		end
 	end,
-	digiline = {
+	digilines = {
 		receptor = {},
 		effector = {
 			action = function() end
