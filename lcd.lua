@@ -84,9 +84,8 @@ local create_lines = function(text)
 						line = word
 					end
 				else
-					if word == " " then
-						-- don't add the space since we have a line break
-					else
+					-- don't add the space since we have a line break
+					if word ~= " " then
 						if line_len > 0 then
 							-- ok, we need the new line
 							if flush_line_and_check_for_return() then return tab end
