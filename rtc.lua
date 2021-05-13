@@ -57,3 +57,12 @@ minetest.register_node("digilines:rtc", {
 		end
 	end,
 })
+
+minetest.register_craft({
+	output = "digilines:rtc",
+	recipe = {
+		{"", "dye:black", ""},
+		{"default:steel_ingot", "default:mese_crystal_fragment", "default:steel_ingot"},
+		{"", "digilines:wire_std_00000000", ""}
+	}
+})

@@ -61,3 +61,11 @@ minetest.register_node("digilines:lightsensor", {
 		end
 	end,
 })
+
+minetest.register_craft({
+	output = "digilines:lightsensor",
+	recipe = {
+		{"default:glass","default:glass","default:glass"},
+		{"default:steel_ingot", "digilines:wire_std_00000000", "default:steel_ingot"},
+	}
+})
