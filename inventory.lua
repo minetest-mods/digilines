@@ -51,6 +51,99 @@ local last_inventory_put_stack
 -- that should be removed once that’s fixed.
 local last_inventory_take_index
 
+local tube_can_insert = function(pos, _, stack, direction)
+	local ret = minetest.get_meta(pos):get_inventory():room_for_item("main", stack)
+	if not ret then
+		-- The stack cannot be accepted. It will never be passed to
+		-- insert_object, but it should be reported as a toverflow.
+		-- Here, direction = direction item is moving, which is into
+		-- side.
+		local side = vector.multiply(direction, -1)
+		send_message(pos, "toverflow", stack, nil, nil, side)
+	end
+	return ret
+end
+
+local tube_insert_object = function(pos, _, original_stack, direction)
+	-- Here, direction = direction item is moving, which is into side.
+	local side = vector.multiply(direction, -1)
+	local inv = minetest.get_meta(pos):get_inventory()
+	local inv_contents = inv:get_list("main")
+	local any_put = false
+	local stack = original_stack
+	local stack_name = stack:get_name()
+	local stack_count = stack:get_count()
+	-- Walk the inventory, adding items to existing stacks of the same
+	-- type.
+	for i = 1, #inv_contents do
+		local existing_stack = inv_contents[i]
+		if not existing_stack:is_empty() and existing_stack:get_name() == stack_name then
+			local leftover = existing_stack:add_item(stack)
+			local leftover_count = leftover:get_count()
+			if leftover_count ~= stack_count then
+				-- We put some items into the slot. Update the slot in
+				-- the inventory, tell Digilines listeners about it,
+				-- and keep looking for the a place to put the
+				-- leftovers if any.
+				any_put = true
+				inv:set_stack("main", i, existing_stack)
+				local stack_that_was_put
+				if leftover_count == 0 then
+					stack_that_was_put = stack
+				else
+					stack_that_was_put = ItemStack(stack)
+					stack_that_was_put:set_count(stack_count - leftover_count)
+				end
+				send_message(pos, "tput", stack_that_was_put, nil, i, side)
+				stack = leftover
+				stack_count = leftover_count
+				if stack_count == 0 then
+					break
+				end
+			end
+		end
+	end
+	if stack_count ~= 0 then
+		-- Walk the inventory, adding items to empty slots.
+		for i = 1, #inv_contents do
+			local existing_stack = inv_contents[i]
+			if existing_stack:is_empty() then
+				local leftover = existing_stack:add_item(stack)
+				local leftover_count = leftover:get_count()
+				if leftover_count ~= stack_count then
+					-- We put some items into the slot. Update the slot in
+					-- the inventory, tell Digilines listeners about it,
+					-- and keep looking for the a place to put the
+					-- leftovers if any.
+					any_put = true
+					inv:set_stack("main", i, existing_stack)
+					local stack_that_was_put
+					if leftover_count == 0 then
+						stack_that_was_put = stack
+					else
+						stack_that_was_put = ItemStack(stack)
+						stack_that_was_put:set_count(stack_count - leftover_count)
+					end
+					send_message(pos, "tput", stack_that_was_put, nil, i, side)
+					stack = leftover
+					stack_count = leftover_count
+					if stack_count == 0 then
+						break
+					end
+				end
+			end
+		end
+	end
+	if any_put then
+		check_full(pos, original_stack)
+	end
+	if stack_count ~= 0 then
+		-- Some items could not be added and bounced back. Report them.
+		send_message(pos, "toverflow", stack, nil, nil, side)
+	end
+	return stack
+end
+
 minetest.register_alias("digilines_inventory:chest", "digilines:chest")
 minetest.register_node("digilines:chest", {
 	description = "Digiline Chest",
@@ -109,97 +202,8 @@ minetest.register_node("digilines:chest", {
 			return not pipeworks.connects.facingFront(i,param2)
 		end,
 		input_inventory = "main",
-		can_insert = function(pos, _, stack, direction)
-			local ret = minetest.get_meta(pos):get_inventory():room_for_item("main", stack)
-			if not ret then
-				-- The stack cannot be accepted. It will never be passed to
-				-- insert_object, but it should be reported as a toverflow.
-				-- Here, direction = direction item is moving, which is into
-				-- side.
-				local side = vector.multiply(direction, -1)
-				send_message(pos, "toverflow", stack, nil, nil, side)
-			end
-			return ret
-		end,
-		insert_object = function(pos, _, original_stack, direction)
-			-- Here, direction = direction item is moving, which is into side.
-			local side = vector.multiply(direction, -1)
-			local inv = minetest.get_meta(pos):get_inventory()
-			local inv_contents = inv:get_list("main")
-			local any_put = false
-			local stack = original_stack
-			local stack_name = stack:get_name()
-			local stack_count = stack:get_count()
-			-- Walk the inventory, adding items to existing stacks of the same
-			-- type.
-			for i = 1, #inv_contents do
-				local existing_stack = inv_contents[i]
-				if not existing_stack:is_empty() and existing_stack:get_name() == stack_name then
-					local leftover = existing_stack:add_item(stack)
-					local leftover_count = leftover:get_count()
-					if leftover_count ~= stack_count then
-						-- We put some items into the slot. Update the slot in
-						-- the inventory, tell Digilines listeners about it,
-						-- and keep looking for the a place to put the
-						-- leftovers if any.
-						any_put = true
-						inv:set_stack("main", i, existing_stack)
-						local stack_that_was_put
-						if leftover_count == 0 then
-							stack_that_was_put = stack
-						else
-							stack_that_was_put = ItemStack(stack)
-							stack_that_was_put:set_count(stack_count - leftover_count)
-						end
-						send_message(pos, "tput", stack_that_was_put, nil, i, side)
-						stack = leftover
-						stack_count = leftover_count
-						if stack_count == 0 then
-							break
-						end
-					end
-				end
-			end
-			if stack_count ~= 0 then
-				-- Walk the inventory, adding items to empty slots.
-				for i = 1, #inv_contents do
-					local existing_stack = inv_contents[i]
-					if existing_stack:is_empty() then
-						local leftover = existing_stack:add_item(stack)
-						local leftover_count = leftover:get_count()
-						if leftover_count ~= stack_count then
-							-- We put some items into the slot. Update the slot in
-							-- the inventory, tell Digilines listeners about it,
-							-- and keep looking for the a place to put the
-							-- leftovers if any.
-							any_put = true
-							inv:set_stack("main", i, existing_stack)
-							local stack_that_was_put
-							if leftover_count == 0 then
-								stack_that_was_put = stack
-							else
-								stack_that_was_put = ItemStack(stack)
-								stack_that_was_put:set_count(stack_count - leftover_count)
-							end
-							send_message(pos, "tput", stack_that_was_put, nil, i, side)
-							stack = leftover
-							stack_count = leftover_count
-							if stack_count == 0 then
-								break
-							end
-						end
-					end
-				end
-			end
-			if any_put then
-				check_full(pos, original_stack)
-			end
-			if stack_count ~= 0 then
-				-- Some items could not be added and bounced back. Report them.
-				send_message(pos, "toverflow", stack, nil, nil, side)
-			end
-			return stack
-		end,
+		can_insert = tube_can_insert,
+		insert_object = tube_insert_object,
 		remove_items = function(pos, _, stack, dir, count)
 			-- Here, stack is the ItemStack in our own inventory that is being
 			-- pulled from, NOT the stack that is actually pulled out.
@@ -309,6 +313,68 @@ minetest.register_node("digilines:chest", {
 		minetest.log("action", player:get_player_name().." takes stuff from chest at "..minetest.pos_to_string(pos))
 	end
 })
+
+if minetest.global_exists("tubelib") and minetest.global_exists("tubelib2") then
+	local speculative_pull = nil
+	local pull_succeeded = function(passed_speculative_pull)
+		if passed_speculative_pull.canceled then return end
+
+		send_message(passed_speculative_pull.pos, "ttake", passed_speculative_pull.taken,
+				passed_speculative_pull.index, nil, passed_speculative_pull.dir)
+		check_empty(passed_speculative_pull.pos)
+	end
+	local function tube_side(pos, side)
+		if side == "U" then return {x=0,y=-1,z=0}
+		elseif side == "D" then return {x=0,y=1,z=0}
+		end
+		local param2 = minetest.get_node(pos).param2
+		return vector.multiply(
+			minetest.facedir_to_dir(
+				tubelib2.side_to_dir(side, param2) - 1),
+			-1)
+	end
+	tubelib.register_node("digilines:chest", {}, {
+		on_pull_item = function(pos, side, player_name)
+			local meta = minetest.get_meta(pos)
+			local inv = meta:get_inventory()
+			for i, stack in pairs(inv:get_list("main")) do
+				if not stack:is_empty() then
+					speculative_pull = {
+						canceled = false,
+						pos = pos,
+						taken = stack,
+						index = i,
+						dir =  vector.multiply(tube_side(pos, side), -1)
+					}
+					minetest.after(0, pull_succeeded, speculative_pull)
+					return inv:remove_item("main", stack:get_name())
+				end
+			end
+			return nil
+		end,
+		on_push_item = function(pos, side, item, player_name)
+			local dir_vec = tube_side(pos, side)
+			if tube_can_insert(pos, nil, item, dir_vec) then
+				tube_insert_object(pos, nil, item, dir_vec)
+				return true
+			end
+			return false
+		end,
+		on_unpull_item = function(pos, side, item, player_name)
+			local inv = minetest.get_meta(pos):get_inventory()
+			if inv:room_for_item("main", item) then
+				-- Cancel speculative pull
+				-- this callback should be called immediately after on_pull_item if it fails
+				-- so this should be procedural
+				speculative_pull.canceled = true
+				speculative_pull = nil
+				inv:add_item("main", item)
+				return true
+			end
+			return false
+		end,
+	})
+end
 
 minetest.register_craft({
 	type = "shapeless",
