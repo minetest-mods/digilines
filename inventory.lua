@@ -320,7 +320,7 @@ if minetest.global_exists("tubelib") and minetest.global_exists("tubelib2") then
 		if passed_speculative_pull.canceled then return end
 
 		send_message(passed_speculative_pull.pos, "ttake", passed_speculative_pull.taken,
-				passed_speculative_pull.index, nil, passed_speculative_pull.dir)
+				passed_speculative_pull.index, nil, vector.multiply(passed_speculative_pull.dir, -1))
 		check_empty(passed_speculative_pull.pos)
 	end
 	local function tube_side(pos, side)
@@ -334,9 +334,8 @@ if minetest.global_exists("tubelib") and minetest.global_exists("tubelib2") then
 			-1)
 	end
 	tubelib.register_node("digilines:chest", {}, {
-		on_pull_item = function(pos, side, player_name)
-			local meta = minetest.get_meta(pos)
-			local inv = meta:get_inventory()
+		on_pull_stack = function(pos, side, player_name)
+			local inv = minetest.get_meta(pos):get_inventory()
 			for i, stack in pairs(inv:get_list("main")) do
 				if not stack:is_empty() then
 					speculative_pull = {
@@ -344,10 +343,30 @@ if minetest.global_exists("tubelib") and minetest.global_exists("tubelib2") then
 						pos = pos,
 						taken = stack,
 						index = i,
-						dir =  vector.multiply(tube_side(pos, side), -1)
+						dir = tube_side(pos, side)
 					}
 					minetest.after(0, pull_succeeded, speculative_pull)
-					return inv:remove_item("main", stack:get_name())
+					inv:set_stack("main", i, nil)
+					return stack
+				end
+			end
+			return nil
+		end,
+		on_pull_item = function(pos, side, player_name)
+			local inv = minetest.get_meta(pos):get_inventory()
+			for i, stack in pairs(inv:get_list("main")) do
+				if not stack:is_empty() then
+					local taken = stack:take_item(1)
+					speculative_pull = {
+						canceled = false,
+						pos = pos,
+						taken = taken,
+						index = i,
+						dir = tube_side(pos, side)
+					}
+					minetest.after(0, pull_succeeded, speculative_pull)
+					inv:set_stack("main", i, stack)
+					return taken
 				end
 			end
 			return nil
@@ -363,13 +382,26 @@ if minetest.global_exists("tubelib") and minetest.global_exists("tubelib2") then
 		on_unpull_item = function(pos, side, item, player_name)
 			local inv = minetest.get_meta(pos):get_inventory()
 			if inv:room_for_item("main", item) then
-				-- Cancel speculative pull
-				-- this callback should be called immediately after on_pull_item if it fails
-				-- so this should be procedural
-				speculative_pull.canceled = true
-				speculative_pull = nil
-				inv:add_item("main", item)
-				return true
+				local existing_stack = inv:get_stack("main", speculative_pull.index)
+				local is_empty = existing_stack:is_empty()
+				if is_empty or (
+					existing_stack:get_name() == item:get_name() and
+					existing_stack:get_count()+item:get_count() <= existing_stack:get_stack_max())
+				then
+					local stack = item
+					if not is_empty then
+						stack = existing_stack
+						stack:add_item(item)
+					end
+					inv:set_stack("main", speculative_pull.index, stack)
+					-- Cancel speculative pull
+					-- this on_unpull_item callback should be called
+					-- immediately after on_pull_item if it fails
+					-- so this should be procedural
+					speculative_pull.canceled = true
+					speculative_pull = nil
+					return true
+				end
 			end
 			return false
 		end,
