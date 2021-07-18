@@ -373,37 +373,33 @@ if minetest.global_exists("tubelib") and minetest.global_exists("tubelib2") then
 		end,
 		on_push_item = function(pos, side, item, player_name)
 			local dir_vec = tube_side(pos, side)
-			if tube_can_insert(pos, nil, item, dir_vec) then
-				tube_insert_object(pos, nil, item, dir_vec)
-				return true
+			if not tube_can_insert(pos, nil, item, dir_vec) then
+				return false
 			end
-			return false
+			tube_insert_object(pos, nil, item, dir_vec)
+			return true
 		end,
 		on_unpull_item = function(pos, side, item, player_name)
 			local inv = minetest.get_meta(pos):get_inventory()
-			if inv:room_for_item("main", item) then
-				local existing_stack = inv:get_stack("main", speculative_pull.index)
-				local is_empty = existing_stack:is_empty()
-				if is_empty or (
-					existing_stack:get_name() == item:get_name() and
-					existing_stack:get_count()+item:get_count() <= existing_stack:get_stack_max())
-				then
-					local stack = item
-					if not is_empty then
-						stack = existing_stack
-						stack:add_item(item)
-					end
-					inv:set_stack("main", speculative_pull.index, stack)
-					-- Cancel speculative pull
-					-- this on_unpull_item callback should be called
-					-- immediately after on_pull_item if it fails
-					-- so this should be procedural
-					speculative_pull.canceled = true
-					speculative_pull = nil
-					return true
-				end
+			if not inv:room_for_item("main", item) then
+				return false
 			end
-			return false
+
+			local existing_stack = inv:get_stack("main", speculative_pull.index)
+			local leftover = existing_stack:add_item(item)
+			if not leftover:is_empty() then
+				return false
+			end
+
+			inv:set_stack("main", speculative_pull.index, existing_stack)
+
+			-- Cancel speculative pull
+			-- this on_unpull_item callback should be called
+			-- immediately after on_pull_item if it fails
+			-- so this should be procedural
+			speculative_pull.canceled = true
+			speculative_pull = nil
+			return true
 		end,
 	})
 end
