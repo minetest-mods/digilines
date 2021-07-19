@@ -314,7 +314,7 @@ minetest.register_node("digilines:chest", {
 	end
 })
 
-if minetest.global_exists("tubelib") and minetest.global_exists("tubelib2") then
+if minetest.global_exists("tubelib") then
 	local speculative_pull = nil
 	local pull_succeeded = function(passed_speculative_pull)
 		if passed_speculative_pull.canceled then return end
