@@ -54,6 +54,9 @@ overflow <itemstack> <count>
 Tricky situation:
 if you have a blank spot and put say 82 torches down your pipeline, followed by 99 coal, the 82 torches will go in the chest, and the chest will see that 1 more torch can fit since that would only go to 83. Since 1 more torch can fit, no "full" message will fire off. Then when the coal hits the chest, the "fail" message will fire and the coal will bounce out. The chest couldn't predict that coal would be coming next, so it couldn't know that the chest is full, for coal, while not full for torches.
 
+The inventory is also compatible with [`tubelib`](https://github.com/joe7575/techpack/tree/master/tubelib), which generally works in the same way as [`pipeworks`](https://gitlab.com/VanessaE/pipeworks) but transfers happen immediately and do not "bounce". This means that the messages should be identical to the messages sent by [`pipeworks`](https://gitlab.com/VanessaE/pipeworks), except that items will not send the "lost" message when they cannot fit.
+One oddity is that "take" messages will be asynchronous because, if an item does not fit in the chest, the event will need to be canceled. This means that it is possible (though highly unlikely) to recieve a "put" message into a slot which you have not yet recieved a "take" message for, there will not actually be two stacks in the same slot, though it may briefly appear that way until the "take" message is recieved.
+
 TODO: 
     - make chest.lua a mixin that gets both default and locked chests
     - digiline aware furnaces
