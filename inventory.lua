@@ -334,7 +334,7 @@ if minetest.global_exists("tubelib") then
 			-1)
 	end
 	tubelib.register_node("digilines:chest", {}, {
-		on_pull_stack = function(pos, side, player_name)
+		on_pull_stack = function(pos, side, _)
 			local inv = minetest.get_meta(pos):get_inventory()
 			for i, stack in pairs(inv:get_list("main")) do
 				if not stack:is_empty() then
@@ -352,7 +352,7 @@ if minetest.global_exists("tubelib") then
 			end
 			return nil
 		end,
-		on_pull_item = function(pos, side, player_name)
+		on_pull_item = function(pos, side, _)
 			local inv = minetest.get_meta(pos):get_inventory()
 			for i, stack in pairs(inv:get_list("main")) do
 				if not stack:is_empty() then
@@ -371,7 +371,7 @@ if minetest.global_exists("tubelib") then
 			end
 			return nil
 		end,
-		on_push_item = function(pos, side, item, player_name)
+		on_push_item = function(pos, side, item, _)
 			local dir_vec = tube_side(pos, side)
 			if not tube_can_insert(pos, nil, item, dir_vec) then
 				return false
@@ -379,7 +379,7 @@ if minetest.global_exists("tubelib") then
 			tube_insert_object(pos, nil, item, dir_vec)
 			return true
 		end,
-		on_unpull_item = function(pos, side, item, player_name)
+		on_unpull_item = function(pos, _, item, _)
 			local inv = minetest.get_meta(pos):get_inventory()
 			if not inv:room_for_item("main", item) then
 				return false
