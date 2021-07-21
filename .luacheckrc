@@ -12,4 +12,6 @@ read_globals = {
 
 globals = {
 	"digilines",
+	"tubelib",
+	"tubelib2"
 }
