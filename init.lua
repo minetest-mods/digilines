@@ -1,5 +1,5 @@
-
 digilines = {}
+digilines.S = minetest.get_translator("digilines")
 
 -- Backwards compatibility code.
 -- We define a proxy table whose methods can be called with the
