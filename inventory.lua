@@ -1,3 +1,5 @@
+local S = digilines.S
+
 local pipeworks_enabled = minetest.get_modpath("pipeworks") ~= nil
 
 -- Sends a message onto the Digilines network.
@@ -146,7 +148,7 @@ end
 
 minetest.register_alias("digilines_inventory:chest", "digilines:chest")
 minetest.register_node("digilines:chest", {
-	description = "Digiline Chest",
+	description = S("Digiline Chest"),
 	tiles = {
 		"default_chest_top.png"..tubeconn,
 		"default_chest_top.png"..tubeconn,
@@ -161,14 +163,14 @@ minetest.register_node("digilines:chest", {
 	sounds = default.node_sound_wood_defaults(),
 	on_construct = function(pos)
 		local meta = minetest.get_meta(pos)
-		meta:set_string("infotext", "Digiline Chest")
+		meta:set_string("infotext", S("Digiline Chest"))
 		meta:set_string("formspec", "size[8,10]"..
 			((default and default.gui_bg) or "")..
 			((default and default.gui_bg_img) or "")..
 			((default and default.gui_slots) or "")..
-			"label[0,0;Digiline Chest]"..
+			"label[0,0;" .. S("Digiline Chest") .. "]" ..
 			"list[current_name;main;0,1;8,4;]"..
-			"field[2,5.5;5,1;channel;Channel;${channel}]"..
+			"field[2,5.5;5,1;channel;" .. S("Channel") .. ";${channel}]"..
 			((default and default.get_hotbar_bg) and default.get_hotbar_bg(0,6) or "")..
 			"list[current_player;main;0,6;8,4;]"..
 			"listring[]")

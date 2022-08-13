@@ -1,0 +1,17 @@
+# textdomain: digilines
+
+### inventory.lua ###
+Digiline Chest=訊纜儲物箱
+Channel=頻道
+
+### lcd.lua ###
+Digiline LCD=訊纜 LCD
+
+### lightsensor.lua ###
+Digiline Lightsensor=訊纜光感應器
+
+### rtc.lua ###
+Digiline Real Time Clock (RTC)=訊纜實時時鐘
+
+### wire_std.lua ###
+Digiline=訊纜

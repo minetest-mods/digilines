@@ -1,3 +1,5 @@
+local S = digilines.S
+
 --* parts are currently not possible because you cannot set the pitch of an entity from lua
 
 -- Font: 04.jp.org
@@ -270,7 +272,7 @@ local lcd_box = {
 minetest.register_alias("digilines_lcd:lcd", "digilines:lcd")
 minetest.register_node("digilines:lcd", {
 	drawtype = "nodebox",
-	description = "Digiline LCD",
+	description = S("Digiline LCD"),
 	inventory_image = "lcd_lcd.png",
 	wield_image = "lcd_lcd.png",
 	tiles = {"lcd_anyside.png"},

@@ -1,3 +1,5 @@
+local S = digilines.S
+
 -- naming scheme: wire:(xp)(zp)(xm)(zm)_on/off
 -- The conditions in brackets define whether there is a digiline at that place or not
 -- 1 = there is one; 0 = there is none
@@ -36,7 +38,7 @@ for zmy=0, 1 do
 
 	if nodeid == "00000000" then
 		groups = {dig_immediate = 3}
-		wiredesc = "Digiline"
+		wiredesc = S("Digiline")
 	else
 		groups = {dig_immediate = 3, not_in_creative_inventory = 1}
 	end
