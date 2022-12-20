@@ -176,10 +176,13 @@ local lcds = {
 	-- on ground
 	--* [1] = {delta = {x = 0, y =-0.4, z = 0}, pitch = math.pi /  2},
 	-- sides
-	[2] = {delta = {x =  0.437, y = 0, z = 0}, yaw = math.pi / -2},
-	[3] = {delta = {x = -0.437, y = 0, z = 0}, yaw = math.pi /  2},
-	[4] = {delta = {x = 0, y = 0, z =  0.437}, yaw = 0},
-	[5] = {delta = {x = 0, y = 0, z = -0.437}, yaw = math.pi},
+
+	-- Note: 0.437 is on the surface but we need some space to avoid
+	--       z-fighting in distant places (e.g. 30000,10,0)
+	[2] = {delta = {x =  0.43, y = 0, z = 0}, yaw = math.pi / -2},
+	[3] = {delta = {x = -0.43, y = 0, z = 0}, yaw = math.pi /  2},
+	[4] = {delta = {x = 0, y = 0, z =  0.43}, yaw = 0},
+	[5] = {delta = {x = 0, y = 0, z = -0.43}, yaw = math.pi},
 }
 
 local reset_meta = function(pos)
