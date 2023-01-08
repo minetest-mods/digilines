@@ -1,17 +1,23 @@
 # textdomain: digilines
 
+
 ### inventory.lua ###
-Digiline Chest=
+
 Channel=
+Digiline Chest=
 
 ### lcd.lua ###
+
 Digiline LCD=
 
 ### lightsensor.lua ###
+
 Digiline Lightsensor=
 
 ### rtc.lua ###
+
 Digiline Real Time Clock (RTC)=
 
 ### wire_std.lua ###
+
 Digiline=
