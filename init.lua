@@ -1,6 +1,15 @@
 digilines = {}
 digilines.S = minetest.get_translator("digilines")
 
+digilines.mtg = minetest.get_modpath("default")
+digilines.mcl = minetest.get_modpath("mcl_core")
+
+-- sounds check
+digilines.sounds = {}
+if digilines.mtg then digilines.sounds = default end
+if digilines.mcl then digilines.sounds = mcl_sounds end
+
+
 -- Backwards compatibility code.
 -- We define a proxy table whose methods can be called with the
 -- `foo:bar` notation, and it will redirect the call to the
