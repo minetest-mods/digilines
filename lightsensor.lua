@@ -39,6 +39,8 @@ minetest.register_node("digilines:lightsensor", {
 
 	paramtype = "light",
 	groups = {dig_immediate=2},
+	_mcl_blast_resistance = 1,
+	_mcl_hardness = 0.8,
 	selection_box = lsensor_selbox,
 	node_box = lsensor_nodebox,
 	digilines =

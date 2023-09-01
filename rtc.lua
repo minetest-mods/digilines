@@ -35,6 +35,8 @@ minetest.register_node("digilines:rtc", {
 	paramtype = "light",
 	paramtype2 = "facedir",
 	groups = {dig_immediate=2},
+	_mcl_blast_resistance = 1,
+	_mcl_hardness = 0.8,
 	selection_box = rtc_selbox,
 	node_box = rtc_nodebox,
 	digilines =

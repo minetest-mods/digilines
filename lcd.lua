@@ -286,6 +286,8 @@ minetest.register_node("digilines:lcd", {
 	node_box = lcd_box,
 	selection_box = lcd_box,
 	groups = {choppy = 3, dig_immediate = 2},
+	_mcl_blast_resistance = 1,
+	_mcl_hardness = 0.8,
 	after_place_node = function(pos)
 		local param2 = minetest.get_node(pos).param2
 		if param2 == 0 or param2 == 1 then

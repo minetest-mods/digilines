@@ -159,8 +159,10 @@ minetest.register_node("digilines:chest", {
 	},
 	paramtype2 = "facedir",
 	legacy_facedir_simple = true,
-	groups = {choppy=2, oddly_breakable_by_hand=2, tubedevice=1, tubedevice_receiver=1},
-	sounds = default.node_sound_wood_defaults(),
+	groups = {choppy=2, oddly_breakable_by_hand=2, tubedevice=1, tubedevice_receiver=1, handy=1},
+	sounds = digilines.sounds.node_sound_wood_defaults(),
+	_mcl_blast_resistance = 1,
+	_mcl_hardness = 0.8,
 	on_construct = function(pos)
 		local meta = minetest.get_meta(pos)
 		meta:set_string("infotext", S("Digiline Chest"))
