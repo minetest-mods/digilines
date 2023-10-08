@@ -67,7 +67,6 @@ local dye_black = "dye:black"
 
 if minetest.get_modpath("mcl_core") then
 	steel_ingot = "mcl_core:iron_ingot"
-	glass = "mcl_core:glass"
 	mese_crystal = "mesecons:redstone"
 end
 
