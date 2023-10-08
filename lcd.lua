@@ -341,14 +341,21 @@ minetest.register_entity(":digilines_lcd:text", {
 	on_activate = set_texture,
 })
 
+local steel_ingot = "default:steel_ingot"
+local glass = "default:glass"
+local lightstone = "mesecons_lightstone:lightstone_green_off"
+
+if minetest.get_modpath("mcl_core") then
+	steel_ingot = "mcl_core:iron_ingot"
+	glass = "mcl_core:glass"
+	lightstone = "mesecons_lightstone:lightstone_off"
+end
+
 minetest.register_craft({
 	output = "digilines:lcd 2",
 	recipe = {
-		{"default:steel_ingot", "digilines:wire_std_00000000", "default:steel_ingot"},
-		{"mesecons_lightstone:lightstone_green_off",
-		"mesecons_lightstone:lightstone_green_off",
-		"mesecons_lightstone:lightstone_green_off"},
-
-		{"default:glass","default:glass","default:glass"}
+		{steel_ingot, "digilines:wire_std_00000000", steel_ingot},
+		{lightstone, lightstone, lightstone},
+		{glass, glass, glass}
 	}
 })

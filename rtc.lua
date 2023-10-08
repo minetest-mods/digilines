@@ -61,11 +61,25 @@ minetest.register_node("digilines:rtc", {
 	end,
 })
 
+local steel_ingot = "default:steel_ingot"
+local mese_crystal = "default:mese_crystal_fragment"
+local dye_black = "dye:black"
+
+if minetest.get_modpath("mcl_core") then
+	steel_ingot = "mcl_core:iron_ingot"
+	glass = "mcl_core:glass"
+	mese_crystal = "mesecons:redstone"
+end
+
+if minetest.get_modpath("mcl_dye") then
+	dye_black = "mcl_dye:black"
+end
+
 minetest.register_craft({
 	output = "digilines:rtc",
 	recipe = {
-		{"", "dye:black", ""},
-		{"default:steel_ingot", "default:mese_crystal_fragment", "default:steel_ingot"},
+		{"", dye_black, ""},
+		{steel_ingot, mese_crystal, steel_ingot},
 		{"", "digilines:wire_std_00000000", ""}
 	}
 })

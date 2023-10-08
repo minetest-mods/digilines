@@ -65,10 +65,18 @@ minetest.register_node("digilines:lightsensor", {
 	end,
 })
 
+local steel_ingot = "default:steel_ingot"
+local glass = "default:glass"
+
+if minetest.get_modpath("mcl_core") then
+	steel_ingot = "mcl_core:iron_ingot"
+	glass = "mcl_core:glass"
+end
+
 minetest.register_craft({
 	output = "digilines:lightsensor",
 	recipe = {
-		{"default:glass","default:glass","default:glass"},
-		{"default:steel_ingot", "digilines:wire_std_00000000", "default:steel_ingot"},
+		{glass, glass, glass},
+		{steel_ingot, "digilines:wire_std_00000000", steel_ingot},
 	}
 })

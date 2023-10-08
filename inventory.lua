@@ -407,8 +407,14 @@ if minetest.global_exists("tubelib") then
 	})
 end
 
+local chest = "default:chest"
+
+if minetest.get_modpath("mcl_chests") then
+	chest = "mcl_chests:chest"
+end
+
 minetest.register_craft({
 	type = "shapeless",
 	output = "digilines:chest",
-	recipe = {"default:chest", "digilines:wire_std_00000000"}
+	recipe = {chest, "digilines:wire_std_00000000"}
 })
