@@ -64,12 +64,24 @@ function digilines.receptor_send(pos, rules, channel, msg)
 	end
 end
 
+local fiber = "mesecons_materials:fiber"
+local insulated = "mesecons_insulated:insulated_off"
+local gold_ingot = "default:gold_ingot"
+
+if minetest.get_modpath("mcl_core") then
+	gold_ingot = "mcl_core:gold_ingot"
+	-- MCL dont support mesecons insulated
+	if not minetest.get_modpath("mesecons_insulated") then
+		insulated = "mesecons:redstone"
+	end
+end
+
 minetest.register_craft({
 	output = 'digilines:wire_std_00000000 2',
 	recipe = {
-		{'mesecons_materials:fiber', 'mesecons_materials:fiber', 'mesecons_materials:fiber'},
-		{'mesecons_insulated:insulated_off', 'mesecons_insulated:insulated_off', 'default:gold_ingot'},
-		{'mesecons_materials:fiber', 'mesecons_materials:fiber', 'mesecons_materials:fiber'},
+		{fiber, fiber, fiber},
+		{insulated, insulated, gold_ingot},
+		{fiber, fiber, fiber},
 	}
 })
 
