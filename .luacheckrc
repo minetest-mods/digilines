@@ -14,5 +14,6 @@ globals = {
 	"digilines",
 	"tubelib",
 	"tubelib2",
-	"mcl_sounds"
+	"mcl_sounds",
+	"mcl_formspec"
 }
