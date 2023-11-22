@@ -146,7 +146,7 @@ local tube_insert_object = function(pos, _, original_stack, direction)
 	return stack
 end
 
-local mcl_bg = ""
+local mcl_bg
 
 if minetest.get_modpath("mcl_formspec") then
 	mcl_bg = mcl_formspec.get_itemslot_bg(0,1,8,4)..
@@ -174,7 +174,7 @@ minetest.register_node("digilines:chest", {
 		local meta = minetest.get_meta(pos)
 		meta:set_string("infotext", S("Digiline Chest"))
 		meta:set_string("formspec", "size[8,10]"..
-			((default and default.gui_bg) or "")..
+			((default and default.gui_bg) or mcl_bg or "")..
 			((default and default.gui_bg_img) or "")..
 			((default and default.gui_slots) or "")..
 			"label[0,0;" .. S("Digiline Chest") .. "]" ..
@@ -182,7 +182,6 @@ minetest.register_node("digilines:chest", {
 			"field[2,5.5;5,1;channel;" .. S("Channel") .. ";${channel}]"..
 			((default and default.get_hotbar_bg) and default.get_hotbar_bg(0,6) or "")..
 			"list[current_player;main;0,6;8,4;]"..
-			mcl_bg..
 			"listring[]")
 		local inv = meta:get_inventory()
 		inv:set_size("main", 8*4)
