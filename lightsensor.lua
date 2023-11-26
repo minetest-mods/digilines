@@ -68,7 +68,7 @@ minetest.register_node("digilines:lightsensor", {
 local steel_ingot = "default:steel_ingot"
 local glass = "default:glass"
 
-if minetest.get_modpath("mcl_core") then
+if digilines.mcl then
 	steel_ingot = "mcl_core:iron_ingot"
 	glass = "mcl_core:glass"
 end

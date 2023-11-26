@@ -65,7 +65,7 @@ local steel_ingot = "default:steel_ingot"
 local mese_crystal = "default:mese_crystal_fragment"
 local dye_black = "dye:black"
 
-if minetest.get_modpath("mcl_core") then
+if digilines.mcl then
 	steel_ingot = "mcl_core:iron_ingot"
 	mese_crystal = "mesecons:redstone"
 end

@@ -345,7 +345,7 @@ local steel_ingot = "default:steel_ingot"
 local glass = "default:glass"
 local lightstone = "mesecons_lightstone:lightstone_green_off"
 
-if minetest.get_modpath("mcl_core") then
+if digilines.mcl then
 	steel_ingot = "mcl_core:iron_ingot"
 	glass = "mcl_core:glass"
 	lightstone = "mesecons_lightstone:lightstone_off"

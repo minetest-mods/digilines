@@ -1,11 +1,10 @@
 digilines = {}
 digilines.S = minetest.get_translator("digilines")
 
-digilines.mtg = minetest.get_modpath("default")
 digilines.mcl = minetest.get_modpath("mcl_core")
 
 -- sounds check
-if digilines.mtg then digilines.sounds = default end
+if minetest.get_modpath("default") then digilines.sounds = default end
 if digilines.mcl then digilines.sounds = mcl_sounds end
 
 
@@ -67,7 +66,7 @@ local fiber = "mesecons_materials:fiber"
 local insulated = "mesecons_insulated:insulated_off"
 local gold_ingot = "default:gold_ingot"
 
-if minetest.get_modpath("mcl_core") then
+if digilines.mcl then
 	gold_ingot = "mcl_core:gold_ingot"
 	-- MCL dont support mesecons insulated
 	if not minetest.get_modpath("mesecons_insulated") then
