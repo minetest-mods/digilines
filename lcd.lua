@@ -286,6 +286,8 @@ minetest.register_node("digilines:lcd", {
 	node_box = lcd_box,
 	selection_box = lcd_box,
 	groups = {choppy = 3, dig_immediate = 2},
+	_mcl_blast_resistance = 1,
+	_mcl_hardness = 0.8,
 	after_place_node = function(pos)
 		local param2 = minetest.get_node(pos).param2
 		if param2 == 0 or param2 == 1 then
@@ -339,14 +341,21 @@ minetest.register_entity(":digilines_lcd:text", {
 	on_activate = set_texture,
 })
 
+local steel_ingot = "default:steel_ingot"
+local glass = "default:glass"
+local lightstone = "mesecons_lightstone:lightstone_green_off"
+
+if digilines.mcl then
+	steel_ingot = "mcl_core:iron_ingot"
+	glass = "mcl_core:glass"
+	lightstone = "mesecons_lightstone:lightstone_off"
+end
+
 minetest.register_craft({
 	output = "digilines:lcd 2",
 	recipe = {
-		{"default:steel_ingot", "digilines:wire_std_00000000", "default:steel_ingot"},
-		{"mesecons_lightstone:lightstone_green_off",
-		"mesecons_lightstone:lightstone_green_off",
-		"mesecons_lightstone:lightstone_green_off"},
-
-		{"default:glass","default:glass","default:glass"}
+		{steel_ingot, "digilines:wire_std_00000000", steel_ingot},
+		{lightstone, lightstone, lightstone},
+		{glass, glass, glass}
 	}
 })

@@ -146,7 +146,15 @@ local tube_insert_object = function(pos, _, original_stack, direction)
 	return stack
 end
 
+local formspec_header = ""
+
+if minetest.get_modpath("mcl_formspec") then
+	formspec_header = mcl_formspec.get_itemslot_bg(0,1,8,4)..
+		mcl_formspec.get_itemslot_bg(0,6,8,4)
+end
+
 minetest.register_alias("digilines_inventory:chest", "digilines:chest")
+
 minetest.register_node("digilines:chest", {
 	description = S("Digiline Chest"),
 	tiles = {
@@ -159,15 +167,15 @@ minetest.register_node("digilines:chest", {
 	},
 	paramtype2 = "facedir",
 	legacy_facedir_simple = true,
-	groups = {choppy=2, oddly_breakable_by_hand=2, tubedevice=1, tubedevice_receiver=1},
-	sounds = default.node_sound_wood_defaults(),
+	groups = {choppy=2, oddly_breakable_by_hand=2, tubedevice=1, tubedevice_receiver=1, axey=1, handy=1},
+	sounds = digilines.sounds.node_sound_wood_defaults(),
+	_mcl_blast_resistance = 1,
+	_mcl_hardness = 0.8,
 	on_construct = function(pos)
 		local meta = minetest.get_meta(pos)
 		meta:set_string("infotext", S("Digiline Chest"))
 		meta:set_string("formspec", "size[8,10]"..
-			((default and default.gui_bg) or "")..
-			((default and default.gui_bg_img) or "")..
-			((default and default.gui_slots) or "")..
+			formspec_header..
 			"label[0,0;" .. S("Digiline Chest") .. "]" ..
 			"list[current_name;main;0,1;8,4;]"..
 			"field[2,5.5;5,1;channel;" .. S("Channel") .. ";${channel}]"..
@@ -405,8 +413,14 @@ if minetest.global_exists("tubelib") then
 	})
 end
 
+local chest = "default:chest"
+
+if minetest.get_modpath("mcl_chests") then
+	chest = "mcl_chests:chest"
+end
+
 minetest.register_craft({
 	type = "shapeless",
 	output = "digilines:chest",
-	recipe = {"default:chest", "digilines:wire_std_00000000"}
+	recipe = {chest, "digilines:wire_std_00000000"}
 })
