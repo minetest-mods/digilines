@@ -109,6 +109,7 @@ for zmy=0, 1 do
 			fixed = nodebox
 		},
 		groups = groups,
+		is_ground_content = false,
 		walkable = false,
 		stack_max = 99,
 		drop = "digilines:wire_std_00000000"

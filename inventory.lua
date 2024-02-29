@@ -168,6 +168,7 @@ minetest.register_node("digilines:chest", {
 	paramtype2 = "facedir",
 	legacy_facedir_simple = true,
 	groups = {choppy=2, oddly_breakable_by_hand=2, tubedevice=1, tubedevice_receiver=1, axey=1, handy=1},
+	is_ground_content = false,
 	sounds = digilines.sounds.node_sound_wood_defaults(),
 	_mcl_blast_resistance = 1,
 	_mcl_hardness = 0.8,
