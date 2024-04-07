@@ -1,0 +1,23 @@
+# textdomain: digilines
+
+
+### inventory.lua ###
+
+Channel=Canal
+Digiline Chest=Coffre de digiline
+
+### lcd.lua ###
+
+Digiline LCD=Ecran à cristaux liquides Digiline
+
+### lightsensor.lua ###
+
+Digiline Lightsensor=Capteur de lumière Digiline
+
+### rtc.lua ###
+
+Digiline Real Time Clock (RTC)=Horloge du temps réel Digiline (Rtc)
+
+### wire_std.lua ###
+
+Digiline=Digiline
