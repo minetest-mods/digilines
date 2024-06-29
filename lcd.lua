@@ -336,9 +336,11 @@ minetest.register_lbm({
 })
 
 minetest.register_entity(":digilines_lcd:text", {
-	collisionbox = { 0, 0, 0, 0, 0, 0 },
-	visual = "upright_sprite",
-	textures = {},
+	initial_properties = {
+		collisionbox = { 0, 0, 0, 0, 0, 0 },
+		visual = "upright_sprite",
+		textures = {},
+	},
 	on_activate = set_texture,
 })
 
