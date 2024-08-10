@@ -29,7 +29,7 @@ local function send_message(pos, action, stack, from_slot, to_slot, side)
 
 	-- Check if we need to include the current signal into batch
 	-- Store "prev_time" in metadata as a string to avoid integer overflow
-	local prev_time = tonumber(meta:get_string("prev_time"))
+	local prev_time = tonumber(meta:get_string("prev_time") or "0")
 	local cur_time = minetest.get_us_time()
 	meta:set_string("prev_time", tostring(cur_time))
 	if cur_time - prev_time < 1000000 * interval_to_batch then
