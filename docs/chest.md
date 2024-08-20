@@ -103,8 +103,8 @@ The message is sent when user puts `<stack>` to the chest to `<input slot>`
 
 ### Fields used within the messages
 
-| Field name | Description |
-| ---------- | ----------- |
+| Field | Description |
+| ----- | ----------- |
 | `<stack>` | A table which contains data about the stack, and corresponds to the format returned by the :to_table() method of ItemStack (check the Minetest API documentation). |
 | `<input slot>`, `<output slot>`, `<slot1>`, `<slot2>` | The index of the corresponding slot starting from 1. |
 | `<side>` | A vector represented as a table of format `{ x = <x>, y = <y>, z = <z> }` which represent the direction from which the tube is connected to the chest. |
