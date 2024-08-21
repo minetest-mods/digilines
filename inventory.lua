@@ -372,7 +372,7 @@ minetest.register_node("digilines:chest", {
 		check_empty(pos)
 		minetest.log("action", player:get_player_name().." takes stuff from chest at "..minetest.pos_to_string(pos))
 	end,
-	on_timer = function(pos, elapsed)
+	on_timer = function(pos, _)
 		-- Send all the batched signals when enough time since the last signal passed
 		if not batched_signals[vector.to_string(pos)] then
 			return
