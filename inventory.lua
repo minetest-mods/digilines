@@ -19,7 +19,7 @@ local function send_and_clear_batch(pos, channel)
 	if #batched_messages[pos_hash] == 1 then
 		-- If there is only one message is the batch, don't send it in a batch
 		digilines.receptor_send(pos, digilines.rules.default, channel,
-			next(batched_messages[pos_hash]))
+			batched_messages[pos_hash][1])
 	else
 		digilines.receptor_send(pos, digilines.rules.default, channel, {
 			action = "batch",
