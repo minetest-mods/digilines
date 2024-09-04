@@ -30,7 +30,8 @@ local function send_and_clear_batch(pos, channel)
 	last_message_time_for_chest[pos_hash] = nil
 end
 
-local function flush_batch_for_chest(pos)
+-- Send all the batched messages for the chest if present
+local function send_batch_for_chest(pos)
 	if not batched_messages[minetest.hash_node_position(pos)] then
 		return
 	end
@@ -244,7 +245,7 @@ minetest.register_node("digilines:chest", {
 		inv:set_size("main", 8*4)
 	end,
 	on_destruct = function(pos)
-		flush_batch_for_chest(pos)
+		send_batch_for_chest(pos)
 	end,
 	after_place_node = tubescan,
 	after_dig_node = tubescan,
@@ -384,7 +385,7 @@ minetest.register_node("digilines:chest", {
 	end,
 	on_timer = function(pos, _)
 		-- Send all the batched messages when enough time since the last message passed
-		flush_batch_for_chest(pos)
+		send_batch_for_chest(pos)
 		return false
 	end
 })
