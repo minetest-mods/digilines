@@ -18,7 +18,8 @@ local function send_and_clear_batch(pos, channel)
 	local pos_hash = minetest.hash_node_position(pos)
 	if #batched_messages[pos_hash] == 1 then
 		-- If there is only one message is the batch, don't send it in a batch
-		digilines.receptor_send(pos, digilines.rules.default, next(batched_messages[pos_hash]))
+		digilines.receptor_send(pos, digilines.rules.default, channel,
+			next(batched_messages[pos_hash]))
 	else
 		digilines.receptor_send(pos, digilines.rules.default, channel, {
 			action = "batch",
@@ -27,6 +28,14 @@ local function send_and_clear_batch(pos, channel)
 	end
 	batched_messages[pos_hash] = nil
 	last_message_time_for_chest[pos_hash] = nil
+end
+
+local function flush_batch_for_chest(pos)
+	if not batched_messages[minetest.hash_node_position(pos)] then
+		return
+	end
+	local channel = minetest.get_meta(pos):get_string("channel")
+	send_and_clear_batch(pos, channel)
 end
 
 -- Sends a message onto the Digilines network.
@@ -235,7 +244,7 @@ minetest.register_node("digilines:chest", {
 		inv:set_size("main", 8*4)
 	end,
 	on_destruct = function(pos)
-		batched_messages[minetest.hash_node_position(pos)] = nil
+		flush_batch_for_chest(pos)
 	end,
 	after_place_node = tubescan,
 	after_dig_node = tubescan,
@@ -375,11 +384,7 @@ minetest.register_node("digilines:chest", {
 	end,
 	on_timer = function(pos, _)
 		-- Send all the batched messages when enough time since the last message passed
-		if not batched_messages[minetest.hash_node_position(pos)] then
-			return
-		end
-		local channel = minetest.get_meta(pos):get_string("channel")
-		send_and_clear_batch(pos, channel)
+		flush_batch_for_chest(pos)
 		return false
 	end
 })
