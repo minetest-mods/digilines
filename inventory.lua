@@ -37,8 +37,7 @@ end
 -- to_slot: the slot number that is put into (optional).
 -- side: which side of the chest the action occurred (optional).
 local function send_message(pos, action, stack, from_slot, to_slot, side)
-	local meta = minetest.get_meta(pos)
-	local channel = meta:get_string("channel")
+	local channel = minetest.get_meta(pos):get_string("channel")
 
 	local msg = {
 		action = action,
