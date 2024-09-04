@@ -101,6 +101,16 @@ The message is sent when user takes `<stack>` from `<output slot>` in the chest.
 ```
 The message is sent when user puts `<stack>` to the chest to `<input slot>`
 
+----------------------------
+
+```
+{
+    action = "batch",
+    messages = <messages>
+}
+```
+The message contains an array of other messages (`<messages>`) which were emitted within a very short interval, and for this reason merged into a batch and sent as a single message. This is needed to prevent burning of connected Lua controllers in case of a large amound of messages within a very short time. This can happen in case of using the feature which allows to move all items of the same type between inventories at once by taking one of them, and clicking on another one while holding Shift. Another theoretical scenario - sending a lot of requests to the server associated with inventory operations on a Digiline chest using a hacked client or custom software. The decision whether to include a message into a batch is made based on the interval from the previous message. For this reason, a batch message is always preceded by a single message which wasn't included into the batch because there was enough time from the previous message, and we cannot know in advance when the next message will be sent to include the current one into the batch too.
+
 ### Fields used within the messages
 
 | Field | Description |
@@ -108,6 +118,7 @@ The message is sent when user puts `<stack>` to the chest to `<input slot>`
 | `<stack>` | A table which contains data about the stack, and corresponds to the format returned by the :to_table() method of ItemStack (check the Minetest API documentation). |
 | `<input slot>`, `<output slot>`, `<slot1>`, `<slot2>` | The index of the corresponding slot starting from 1. |
 | `<side>` | A vector represented as a table of format `{ x = <x>, y = <y>, z = <z> }` which represent the direction from which the tube is connected to the chest. |
+| `<messages>` | An array of messages which are emitted by Digiline chest in the same format. |
 
 ## Additional information
 
