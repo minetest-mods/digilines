@@ -8,22 +8,25 @@ local batched_signals = {}
 local interval_to_batch = 0.1
 -- Maximum number of signals in batch
 local max_signals_in_batch = 100
+-- Time of last signal for each chest
+local last_signal_time_for_chest = {}
 
 -- Sends the current batch message of a Digiline chest
 -- pos: the position of the Digilines chest node
 -- channel: the channel to which the message will be sent
 local function send_and_clear_batch(pos, channel)
-	local pos_text = vector.to_string(pos)
-	if #batched_signals[pos_text] == 1 then
+	local pos_hash = minetest.hash_node_position(pos)
+	if #batched_signals[pos_hash] == 1 then
 		-- If there is only one signal is the batch, don't send it in a batch
-		digilines.receptor_send(pos, digilines.rules.default, next(batched_signals[pos_text]))
+		digilines.receptor_send(pos, digilines.rules.default, next(batched_signals[pos_hash]))
 	else
 		digilines.receptor_send(pos, digilines.rules.default, channel, {
 			action = "batch",
-			signals = batched_signals[pos_text]
+			signals = batched_signals[pos_hash]
 		})
 	end
-	batched_signals[pos_text] = nil
+	batched_signals[pos_hash] = nil
+	last_signal_time_for_chest[pos_hash] = nil
 end
 
 -- Sends a message onto the Digilines network.
@@ -47,16 +50,15 @@ local function send_message(pos, action, stack, from_slot, to_slot, side)
 	}
 
 	-- Check if we need to include the current signal into batch
-	-- Store "prev_time" in metadata as a string to avoid integer overflow
-	local prev_time = tonumber(meta:get_string("prev_time")) or 0
+	local pos_hash = minetest.hash_node_position(pos)
+	local prev_time = last_signal_time_for_chest[pos_hash] or 0
 	local cur_time = minetest.get_us_time()
-	meta:set_string("prev_time", tostring(cur_time))
+	last_signal_time_for_chest[pos_hash] = cur_time
 	if cur_time - prev_time < 1000000 * interval_to_batch then
-		local pos_text = vector.to_string(pos)
-		batched_signals[pos_text] = batched_signals[pos_text] or {}
-		table.insert(batched_signals[pos_text], msg)
+		batched_signals[pos_hash] = batched_signals[pos_hash] or {}
+		table.insert(batched_signals[pos_hash], msg)
 		local node_timer = minetest.get_node_timer(pos)
-		if #batched_signals[pos_text] >= max_signals_in_batch then
+		if #batched_signals[pos_hash] >= max_signals_in_batch then
 			-- Send the batch immediately if it's full
 			node_timer:stop()
 			send_and_clear_batch(pos, channel)
@@ -234,7 +236,7 @@ minetest.register_node("digilines:chest", {
 		inv:set_size("main", 8*4)
 	end,
 	on_destruct = function(pos)
-		batched_signals[vector.to_string(pos)] = nil
+		batched_signals[minetest.hash_node_position(pos)] = nil
 	end,
 	after_place_node = tubescan,
 	after_dig_node = tubescan,
@@ -374,7 +376,7 @@ minetest.register_node("digilines:chest", {
 	end,
 	on_timer = function(pos, _)
 		-- Send all the batched signals when enough time since the last signal passed
-		if not batched_signals[vector.to_string(pos)] then
+		if not batched_signals[minetest.hash_node_position(pos)] then
 			return
 		end
 		local channel = minetest.get_meta(pos):get_string("channel")
