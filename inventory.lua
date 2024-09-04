@@ -2,31 +2,31 @@ local S = digilines.S
 
 local pipeworks_enabled = minetest.get_modpath("pipeworks") ~= nil
 
--- Signals which will be sent in a single batch
-local batched_signals = {}
--- Maximum interval from the previous signal to include the current one into batch (in seconds)
+-- Messages which will be sent in a single batch
+local batched_messages = {}
+-- Maximum interval from the previous message to include the current one into batch (in seconds)
 local interval_to_batch = 0.1
--- Maximum number of signals in batch
-local max_signals_in_batch = 100
--- Time of last signal for each chest
-local last_signal_time_for_chest = {}
+-- Maximum number of messages in batch
+local max_messages_in_batch = 100
+-- Time of the last message for each chest
+local last_message_time_for_chest = {}
 
 -- Sends the current batch message of a Digiline chest
 -- pos: the position of the Digilines chest node
 -- channel: the channel to which the message will be sent
 local function send_and_clear_batch(pos, channel)
 	local pos_hash = minetest.hash_node_position(pos)
-	if #batched_signals[pos_hash] == 1 then
-		-- If there is only one signal is the batch, don't send it in a batch
-		digilines.receptor_send(pos, digilines.rules.default, next(batched_signals[pos_hash]))
+	if #batched_messages[pos_hash] == 1 then
+		-- If there is only one message is the batch, don't send it in a batch
+		digilines.receptor_send(pos, digilines.rules.default, next(batched_messages[pos_hash]))
 	else
 		digilines.receptor_send(pos, digilines.rules.default, channel, {
 			action = "batch",
-			signals = batched_signals[pos_hash]
+			messages = batched_messages[pos_hash]
 		})
 	end
-	batched_signals[pos_hash] = nil
-	last_signal_time_for_chest[pos_hash] = nil
+	batched_messages[pos_hash] = nil
+	last_message_time_for_chest[pos_hash] = nil
 end
 
 -- Sends a message onto the Digilines network.
@@ -49,16 +49,16 @@ local function send_message(pos, action, stack, from_slot, to_slot, side)
 		side = side and vector.new(side)
 	}
 
-	-- Check if we need to include the current signal into batch
+	-- Check if we need to include the current message into batch
 	local pos_hash = minetest.hash_node_position(pos)
-	local prev_time = last_signal_time_for_chest[pos_hash] or 0
+	local prev_time = last_message_time_for_chest[pos_hash] or 0
 	local cur_time = minetest.get_us_time()
-	last_signal_time_for_chest[pos_hash] = cur_time
+	last_message_time_for_chest[pos_hash] = cur_time
 	if cur_time - prev_time < 1000000 * interval_to_batch then
-		batched_signals[pos_hash] = batched_signals[pos_hash] or {}
-		table.insert(batched_signals[pos_hash], msg)
+		batched_messages[pos_hash] = batched_messages[pos_hash] or {}
+		table.insert(batched_messages[pos_hash], msg)
 		local node_timer = minetest.get_node_timer(pos)
-		if #batched_signals[pos_hash] >= max_signals_in_batch then
+		if #batched_messages[pos_hash] >= max_messages_in_batch then
 			-- Send the batch immediately if it's full
 			node_timer:stop()
 			send_and_clear_batch(pos, channel)
@@ -236,7 +236,7 @@ minetest.register_node("digilines:chest", {
 		inv:set_size("main", 8*4)
 	end,
 	on_destruct = function(pos)
-		batched_signals[minetest.hash_node_position(pos)] = nil
+		batched_messages[minetest.hash_node_position(pos)] = nil
 	end,
 	after_place_node = tubescan,
 	after_dig_node = tubescan,
@@ -375,8 +375,8 @@ minetest.register_node("digilines:chest", {
 		minetest.log("action", player:get_player_name().." takes stuff from chest at "..minetest.pos_to_string(pos))
 	end,
 	on_timer = function(pos, _)
-		-- Send all the batched signals when enough time since the last signal passed
-		if not batched_signals[minetest.hash_node_position(pos)] then
+		-- Send all the batched messages when enough time since the last message passed
+		if not batched_messages[minetest.hash_node_position(pos)] then
 			return
 		end
 		local channel = minetest.get_meta(pos):get_string("channel")
