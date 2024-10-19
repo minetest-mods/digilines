@@ -79,13 +79,10 @@ local function send_message(pos, action, stack, from_slot, to_slot, side)
 		if cur_time - prev_time < 1000000 * interval_to_batch or batches[pos_hash] then
 			batches[pos_hash] = batches[pos_hash] or { messages = {} }
 			table.insert(batches[pos_hash].messages, msg)
-			if batches[pos_hash].timer then
-				batches[pos_hash].timer:cancel()
-			end
 			if #batches[pos_hash].messages >= max_messages_in_batch then
 				-- Send the batch immediately if it's full
 				send_and_clear_batch(pos, channel)
-			else
+			elseif not batches[pos_hash].timer then
 				batches[pos_hash].timer = minetest.after(interval_to_batch, send_batch_on_timer, pos)
 			end
 
