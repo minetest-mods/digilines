@@ -39,10 +39,13 @@ local function send_and_clear_batch(pos, channel)
 	last_message_time_for_chest[pos_hash] = nil
 end
 
--- Send all the batched messages for the chest if present
-local function send_batch_for_chest(pos)
+-- Send all the batched messages on timer expiration for the chest if present
+local function send_batch_on_timer(pos)
 	if not batches[minetest.hash_node_position(pos)] then
 		return
+	end
+	if minetest.get_node(pos).name == "ignore" then
+		minetest.load_area(pos)
 	end
 	local channel = minetest.get_meta(pos):get_string("channel")
 	send_and_clear_batch(pos, channel)
@@ -83,7 +86,7 @@ local function send_message(pos, action, stack, from_slot, to_slot, side)
 				-- Send the batch immediately if it's full
 				send_and_clear_batch(pos, channel)
 			else
-				batches[pos_hash].timer = minetest.after(interval_to_batch, send_batch_for_chest, pos)
+				batches[pos_hash].timer = minetest.after(interval_to_batch, send_batch_on_timer, pos)
 			end
 
 			return
@@ -270,7 +273,8 @@ minetest.register_node("digilines:chest", {
 		end
 
 		batches[pos_hash].timer:cancel()
-		send_batch_for_chest(pos)
+		local channel = minetest.get_meta(pos):get_string("channel")
+		send_and_clear_batch(pos, channel)
 	end,
 	after_place_node = tubescan,
 	after_dig_node = tubescan,
