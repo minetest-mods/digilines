@@ -3,6 +3,16 @@ local S = digilines.S
 local pipeworks_enabled = minetest.get_modpath("pipeworks") ~= nil
 
 -- Messages which will be sent in a single batch
+--[[
+Table format:
+{
+	[node pos hash] = {
+		messages = { msg1, msg2, ... }
+		timer = <job table from core.after()>
+	},
+	...
+}
+]]
 local batches = {}
 -- Maximum interval from the previous message to include the current one into batch (in seconds)
 local interval_to_batch = 0.1
