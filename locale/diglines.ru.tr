@@ -4,20 +4,20 @@
 ### inventory.lua ###
 
 Channel=Канал
-Digiline Chest=Сундук digiline
+Digiline Chest=Диджилайн-сундук
 
 ### lcd.lua ###
 
-Digiline LCD=
+Digiline LCD=Диджилайн LCD
 
 ### lightsensor.lua ###
 
-Digiline Lightsensor=Сенсор света digiline
+Digiline Lightsensor=Сенсор света диджилайн
 
 ### rtc.lua ###
 
-Digiline Real Time Clock (RTC)=Часы реального времени digiline (RTC)
+Digiline Real Time Clock (RTC)=Часы реального времени диджилайн (RTC)
 
 ### wire_std.lua ###
 
-Digiline=
+Digiline=Диджилайн
