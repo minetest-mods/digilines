@@ -186,7 +186,7 @@ local lcds = {
 }
 
 local reset_meta = function(pos)
-	minetest.get_meta(pos):set_string("formspec", "field[channel;Channel;${channel}]")
+	minetest.get_meta(pos):set_string("formspec", "field[channel;"..S("Channel")..";${channel}]")
 end
 
 local clearscreen = function(pos)
