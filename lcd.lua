@@ -1,4 +1,8 @@
 local S = digilines.S
+-- formspec escape translation
+local function FS(...)
+	return core.formspec_escape(S(...))
+end
 
 --* parts are currently not possible because you cannot set the pitch of an entity from lua
 
@@ -186,7 +190,7 @@ local lcds = {
 }
 
 local reset_meta = function(pos)
-	minetest.get_meta(pos):set_string("formspec", "field[channel;"..S("Channel")..";${channel}]")
+	minetest.get_meta(pos):set_string("formspec", "field[channel;"..FS("Channel")..";${channel}]")
 end
 
 local clearscreen = function(pos)
