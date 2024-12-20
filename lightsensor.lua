@@ -1,4 +1,8 @@
 local S = digilines.S
+-- formspec escape translation
+local function FS(...)
+return core.formspec_escape(S(...))
+end
 
 local GET_COMMAND = "GET"
 
@@ -53,7 +57,7 @@ minetest.register_node("digilines:lightsensor", {
 	},
 	on_construct = function(pos)
 		local meta = minetest.get_meta(pos)
-		meta:set_string("formspec", "field[channel;"..S("Channel")..";${channel}]")
+		meta:set_string("formspec", "field[channel;"..FS("Channel")..";${channel}]")
 	end,
 	on_receive_fields = function(pos, _, fields, sender)
 		local name = sender:get_player_name()
