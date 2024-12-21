@@ -1,12 +1,16 @@
 digilines = {}
 digilines.S = minetest.get_translator("digilines")
 
+-- formspec escape translation
+digilines.FS = function (...)
+	return minetest.formspec_escape(digilines.S(...))
+end
+
 digilines.mcl = minetest.get_modpath("mcl_core")
 
 -- sounds check
 if minetest.get_modpath("default") then digilines.sounds = default end
 if digilines.mcl then digilines.sounds = mcl_sounds end
-
 
 -- Backwards compatibility code.
 -- We define a proxy table whose methods can be called with the

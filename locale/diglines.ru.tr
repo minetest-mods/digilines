@@ -1,0 +1,23 @@
+# textdomain: digilines
+
+
+### inventory.lua ###
+
+Channel=Канал
+Digiline Chest=Диджилайн-сундук
+
+### lcd.lua ###
+
+Digiline LCD=Диджилайн LCD
+
+### lightsensor.lua ###
+
+Digiline Lightsensor=Сенсор света диджилайн
+
+### rtc.lua ###
+
+Digiline Real Time Clock (RTC)=Часы реального времени диджилайн (RTC)
+
+### wire_std.lua ###
+
+Digiline=Диджилайн

@@ -1,4 +1,5 @@
 local S = digilines.S
+local FS = digilines.FS
 
 local GET_COMMAND = "GET"
 
@@ -53,7 +54,7 @@ minetest.register_node("digilines:lightsensor", {
 	},
 	on_construct = function(pos)
 		local meta = minetest.get_meta(pos)
-		meta:set_string("formspec", "field[channel;Channel;${channel}]")
+		meta:set_string("formspec", "field[channel;"..FS("Channel")..";${channel}]")
 	end,
 	on_receive_fields = function(pos, _, fields, sender)
 		local name = sender:get_player_name()
