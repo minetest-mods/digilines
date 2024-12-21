@@ -1,8 +1,5 @@
 local S = digilines.S
--- formspec escape translation
-local function FS(...)
-	return core.formspec_escape(S(...))
-end
+local FS = digilines.FS
 
 --* parts are currently not possible because you cannot set the pitch of an entity from lua
 
