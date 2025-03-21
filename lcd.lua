@@ -182,20 +182,31 @@ end
 local generate_raster_texture = function(colors)
 	-- the LCD texture is 16x16, will upscale the resolution by 4
 	local total_width = 16 * 4
-	local h_padding = 1 * 4
-	local v_padding = 2 * 4
+	local w_padding = 1 * 4
+	local h_padding = 2 * 4
 
-	local width = total_width - h_padding * 2
-	local height = total_width - v_padding * 2
+	local width = total_width - w_padding * 2
+	local height = total_width - h_padding * 2
 
 	local texture = "[fill:"..total_width.."x"..total_width..":#0000"
+
+	-- the LCD's frame
+	-- top
+	texture = texture .. "^[fill:"..total_width.."x"..h_padding..":0,0:#000"
+	-- bottom
+	texture = texture .. "^[fill:"..total_width.."x"..h_padding..":0,"..total_width - h_padding..":#000"
+	-- left
+	texture = texture .. "^[fill:"..w_padding.."x"..total_width - h_padding..":0,"..h_padding..":#000"
+	-- right
+	texture = texture .. "^[fill:"..w_padding.."x"..total_width - h_padding..":".. total_width - w_padding ..","..h_padding..":#000"
+
 	if type(colors) == "table" then
 		for i, num in ipairs(colors) do
 			if i > width * height then break end
 			local color = number_to_color(num)
 			local x = (i - 1) % width
 			local y = math.floor((i - 1) / width)
-			texture = texture .. "^[fill:1x1:"..x + h_padding ..","..y + v_padding..":"..color
+			texture = texture .. "^[fill:1x1:"..x + w_padding ..","..y + h_padding..":"..color
 		end
 	end
 
