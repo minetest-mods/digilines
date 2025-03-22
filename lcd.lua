@@ -192,13 +192,21 @@ local generate_raster_texture = function(colors)
 
 	-- the LCD's frame
 	-- top
-	texture = texture .. "^[fill:"..total_width.."x"..h_padding..":0,0:#000"
+	texture = texture
+		.."^[fill:"..total_width.."x"..h_padding
+		..":0,0:#000"
 	-- bottom
-	texture = texture .. "^[fill:"..total_width.."x"..h_padding..":0,"..total_width - h_padding..":#000"
+	texture = texture
+		.."^[fill:"..total_width.."x"..h_padding
+		..":0,"..total_width - h_padding..":#000"
 	-- left
-	texture = texture .. "^[fill:"..w_padding.."x"..total_width - h_padding..":0,"..h_padding..":#000"
+	texture = texture
+		.."^[fill:"..w_padding.."x"..total_width - h_padding
+		..":0,"..h_padding..":#000"
 	-- right
-	texture = texture .. "^[fill:"..w_padding.."x"..total_width - h_padding..":".. total_width - w_padding ..","..h_padding..":#000"
+	texture = texture
+		.."^[fill:"..w_padding.."x"..total_width - h_padding
+		..":".. total_width - w_padding ..","..h_padding..":#000"
 
 	if type(colors) == "table" then
 		for i, num in ipairs(colors) do
@@ -246,7 +254,7 @@ local set_texture = function(ent)
 	local meta = minetest.get_meta(ent.object:get_pos())
 	local message = meta:get_string("message")
 	local message_type = meta:get_string("message_type")
-	
+
 	local texture
 	if message_type == "string" then
 		texture = generate_text_texture(create_lines(message))
