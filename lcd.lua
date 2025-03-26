@@ -188,25 +188,7 @@ local generate_raster_texture = function(colors)
 	local width = total_width - w_padding * 2
 	local height = total_width - h_padding * 2
 
-	local texture = "[fill:"..total_width.."x"..total_width..":#0000"
-
-	-- the LCD's frame
-	-- top
-	texture = texture
-		.."^[fill:"..total_width.."x"..h_padding
-		..":0,0:#000"
-	-- bottom
-	texture = texture
-		.."^[fill:"..total_width.."x"..h_padding
-		..":0,"..total_width - h_padding..":#000"
-	-- left
-	texture = texture
-		.."^[fill:"..w_padding.."x"..total_width - h_padding
-		..":0,"..h_padding..":#000"
-	-- right
-	texture = texture
-		.."^[fill:"..w_padding.."x"..total_width - h_padding
-		..":".. total_width - w_padding ..","..h_padding..":#000"
+	local texture = "lcd_anyside.png^[resize:"..total_width.."x"..total_width
 
 	if type(colors) == "table" then
 		for i, num in ipairs(colors) do
