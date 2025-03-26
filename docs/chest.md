@@ -101,6 +101,16 @@ The message is sent when user takes `<stack>` from `<output slot>` in the chest.
 ```
 The message is sent when user puts `<stack>` to the chest to `<input slot>`
 
+----------------------------
+
+```
+{
+    action = "batch",
+    messages = <messages>
+}
+```
+The message contains an array of other messages (`<messages>`) which were emitted within a very short interval, and for this reason merged into a batch and sent as a single message. This is needed to prevent burning of connected Lua controllers in case of a large amount of messages within a very short time. This can happen in case of using the feature which allows to move all items of the same type between inventories at once by taking one of them, and clicking on another one while holding Shift. Another theoretical scenario - sending a lot of requests to the server associated with inventory operations on a Digiline chest using a hacked client or custom software. The decision whether to include a message into a batch is made based on the interval from the previous message. For this reason, a batch message is always preceded by a single message which wasn't included into the batch because there was enough time from the previous message, and we cannot know in advance when the next message will be sent to include the current one into the batch too. Only messages with the following actions can be included into a batch: "uput", "utake", "uswap", "umove", "empty", "full"; all the other messages are related to tube events. This restriction was added because, when we send a batch, the area might become unloaded, so we need to load it back, and the possibility to include messages of all types into a batch might make a possibility to create mechanisms which keep the area loaded by causing a large amount of events to a Digiline chest. Messages with actions "empty" and "full" are included into a batch only if the batch is already not empty. If the chest tries to send a message which cannot be batched while its current batch is not empty, the batch is sent immediately to preserve the original order of messages.
+
 ### Fields used within the messages
 
 | Field | Description |
@@ -108,6 +118,7 @@ The message is sent when user puts `<stack>` to the chest to `<input slot>`
 | `<stack>` | A table which contains data about the stack, and corresponds to the format returned by the :to_table() method of ItemStack (check the Minetest API documentation). |
 | `<input slot>`, `<output slot>`, `<slot1>`, `<slot2>` | The index of the corresponding slot starting from 1. |
 | `<side>` | A vector represented as a table of format `{ x = <x>, y = <y>, z = <z> }` which represent the direction from which the tube is connected to the chest. |
+| `<messages>` | An array of messages which are emitted by Digiline chest in the same format. |
 
 ## Additional information
 
