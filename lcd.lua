@@ -188,18 +188,22 @@ local generate_raster_texture = function(colors)
 	local width = total_width - w_padding * 2
 	local height = total_width - h_padding * 2
 
-	local texture = "lcd_anyside.png^[resize:"..total_width.."x"..total_width
+	-- using escapes for the combine at the end
+	local texture = "lcd_anyside.png\\^[resize\\:"..total_width.."x"..total_width
 
 	if type(colors) == "table" then
 		local pixels = {}
-		for i, num in ipairs(colors) do
-			if i > width * height then break end
-			local color = number_to_color(num)
-			local x = (i - 1) % width
-			local y = math.floor((i - 1) / width)
-			pixels[i] = "^[fill:1x1:"..x + w_padding ..","..y + h_padding..":"..color
+		for i = 1, width * height do
+			local color = "#0000"
+			if (i <= #colors) then
+				color = number_to_color(colors[i])
+			end
+			pixels[i] = color
 		end
-		texture = texture .. table.concat(pixels)
+		local png = minetest.encode_base64(minetest.encode_png(width, height, pixels))
+		texture = "[combine:"..total_width.."x"..total_width
+			..":0,0="..texture
+			..":"..w_padding..","..h_padding.."=[png\\:"..png
 	end
 
 	return texture
