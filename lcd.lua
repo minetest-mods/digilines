@@ -161,13 +161,51 @@ local generate_line = function(s, ypos)
 	return texture
 end
 
-local generate_texture = function(lines)
+local generate_text_texture = function(lines)
 	local texture = "[combine:"..LCD_WIDTH.."x"..LCD_WIDTH
 	local ypos = math.floor((LCD_WIDTH - LINE_HEIGHT*NUMBER_OF_LINES) / 2)
 	for i = 1, #lines do
 		texture = texture..generate_line(lines[i], ypos)
 		ypos = ypos + LINE_HEIGHT
 	end
+	return texture
+end
+
+local number_to_color = function(num)
+	if type(num) ~= "number" or num >= 4096 or num < 0 then
+		return "#0000"
+	end
+
+	return string.format("#%X%X%X", num / 16^2, num / 16 % 16, num % 16 )
+end
+
+local generate_raster_texture = function(colors)
+	-- the LCD texture is 16x16, will upscale the resolution by 4
+	local total_width = 16 * 4
+	local w_padding = 1 * 4
+	local h_padding = 2 * 4
+
+	local width = total_width - w_padding * 2
+	local height = total_width - h_padding * 2
+
+	-- using escapes for the combine at the end
+	local texture = "lcd_anyside.png\\^[resize\\:"..total_width.."x"..total_width
+
+	if type(colors) == "table" then
+		local pixels = {}
+		for i = 1, width * height do
+			local color = "#0000"
+			if (i <= #colors) then
+				color = number_to_color(colors[i])
+			end
+			pixels[i] = color
+		end
+		local png = minetest.encode_base64(minetest.encode_png(width, height, pixels))
+		texture = "[combine:"..total_width.."x"..total_width
+			..":0,0="..texture
+			..":"..w_padding..","..h_padding.."=[png\\:"..png
+	end
+
 	return texture
 end
 
@@ -202,10 +240,18 @@ end
 
 local set_texture = function(ent)
 	local meta = minetest.get_meta(ent.object:get_pos())
-	local text = meta:get_string("text")
+	local message = meta:get_string("message")
+	local message_type = meta:get_string("message_type")
+
+	local texture
+	if message_type == "string" then
+		texture = generate_text_texture(create_lines(message))
+	else
+		texture = generate_raster_texture(minetest.deserialize(message))
+	end
 	ent.object:set_properties({
 		textures = {
-			generate_texture(create_lines(text))
+			texture
 		}
 	})
 end
@@ -260,12 +306,19 @@ local on_digiline_receive = function(pos, _, channel, msg)
 	local setchan = meta:get_string("channel")
 	if setchan ~= channel then return end
 
-	if type(msg) ~= "string" and type(msg) ~= "number" then return end
+	if type(msg) == "string" or type(msg) == "number" then
+		meta:set_string("message", msg)
+		meta:set_string("infotext", msg)
+	elseif type(msg) == "table" then
+		meta:set_string("message", minetest.serialize(msg))
+		meta:set_string("infotext", "")
+	else
+		return
+	end
 
-	meta:set_string("text", msg)
-	meta:set_string("infotext", msg)
+	meta:set_string("message_type", type(msg))
 
-	if msg ~= "" then
+	if type(msg) ~= string or msg ~= "" then
 		prepare_writing(pos)
 	end
 end
