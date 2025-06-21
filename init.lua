@@ -12,6 +12,10 @@ digilines.mcl = minetest.get_modpath("mcl_core")
 if minetest.get_modpath("default") then digilines.sounds = default end
 if digilines.mcl then digilines.sounds = mcl_sounds end
 
+-- Show a more helpful error message to the player
+assert(digilines.sounds,
+	"Digilines requires Minetest Game or a VoxeLibre (-compatible) game.")
+
 -- Backwards compatibility code.
 -- We define a proxy table whose methods can be called with the
 -- `foo:bar` notation, and it will redirect the call to the
