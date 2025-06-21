@@ -1,3 +1,6 @@
+assert(core.features.dynamic_add_media_table,
+	"Digilines requires Luanti/Minetest >= 5.5.0 to work correctly")
+
 local S = digilines.S
 
 local pipeworks_enabled = minetest.get_modpath("pipeworks") ~= nil
@@ -23,7 +26,7 @@ local function send_message(pos, action, stack, from_slot, to_slot, side)
 end
 
 -- Checks if the inventory has become empty and, if so, sends an empty message.
-local function check_empty(pos)
+local function send_empty_if_empty(pos)
 	if minetest.get_meta(pos):get_inventory():is_empty("main") then
 		send_message(pos, "empty")
 	end
@@ -31,7 +34,7 @@ end
 
 -- Checks if the inventory has become full for a particular type of item and,
 -- if so, sends a full message.
-local function check_full(pos, stack)
+local function send_full_if_full(pos, stack)
 	local one_item_stack = ItemStack(stack)
 	one_item_stack:set_count(1)
 	if not minetest.get_meta(pos):get_inventory():room_for_item("main", one_item_stack) then
@@ -41,17 +44,6 @@ end
 
 local tubeconn = pipeworks_enabled and "^pipeworks_tube_connection_wooden.png" or ""
 local tubescan = pipeworks_enabled and function(pos) pipeworks.scan_for_tube_objects(pos) end or nil
-
--- A place to remember things from allow_metadata_inventory_put to
--- on_metadata_inventory_put. This is a hack due to issue
--- minetest/minetest#6534 that should be removed once that’s fixed.
-local last_inventory_put_index
-local last_inventory_put_stack
-
--- A place to remember things from allow_metadata_inventory_take to
--- tube.remove_items. This is a hack due to issue minetest-mods/pipeworks#205
--- that should be removed once that’s fixed.
-local last_inventory_take_index
 
 local tube_can_insert = function(pos, _, stack, direction)
 	local ret = minetest.get_meta(pos):get_inventory():room_for_item("main", stack)
@@ -137,7 +129,7 @@ local tube_insert_object = function(pos, _, original_stack, direction)
 		end
 	end
 	if any_put then
-		check_full(pos, original_stack)
+		send_full_if_full(pos, original_stack)
 	end
 	if stack_count ~= 0 then
 		-- Some items could not be added and bounced back. Report them.
@@ -206,6 +198,7 @@ minetest.register_node("digilines:chest", {
 			action = function() end
 		}
 	},
+	-- pipeworks support
 	tube = {
 		connect_sides = {left=1, right=1, back=1, front=1, bottom=1, top=1},
 		connects = function(i,param2)
@@ -214,47 +207,20 @@ minetest.register_node("digilines:chest", {
 		input_inventory = "main",
 		can_insert = tube_can_insert,
 		insert_object = tube_insert_object,
-		remove_items = function(pos, _, stack, dir, count)
-			-- Here, stack is the ItemStack in our own inventory that is being
-			-- pulled from, NOT the stack that is actually pulled out.
-			-- Combining it with count gives the stack that is pulled out.
-			-- Also, note that Pipeworks doesn’t pass the index to this
-			-- function, so we use the one recorded in
-			-- allow_metadata_inventory_take; because we don’t implement
-			-- tube.can_remove, Pipeworks will call
-			-- allow_metadata_inventory_take instead and will pass it the
-			-- index.
+		remove_items = function(pos, _, stack, dir, count, listname, index)
+			-- This is `on_metadata_inventory_take` but for pipeworks.
 			local taken = stack:take_item(count)
-			minetest.get_meta(pos):get_inventory():set_stack("main", last_inventory_take_index, stack)
-			send_message(pos, "ttake", taken, last_inventory_take_index, nil, dir)
-			check_empty(pos)
+
+			-- However! Pipeworks does not update the stack, thus we must do it.
+			core.get_meta(pos):get_inventory():set_stack(listname, index, stack)
+
+			send_message(pos, "ttake", taken, index, nil, dir)
+			send_empty_if_empty(pos)
 			return taken
 		end,
 	},
-	allow_metadata_inventory_put = function(pos, _, index, stack)
-		-- Remember what was in the target slot before the put; see
-		-- on_metadata_inventory_put for why we care.
-		last_inventory_put_index = index
-		last_inventory_put_stack = minetest.get_meta(pos):get_inventory():get_stack("main", index)
-		return stack:get_count()
-	end,
-	allow_metadata_inventory_take = function(_, _, index, stack)
-		-- Remember the index value; see tube.remove_items for why we care.
-		last_inventory_take_index = index
-		return stack:get_count()
-	end,
 	on_metadata_inventory_move = function(pos, _, from_index, _, to_index, count, player)
-		-- See what would happen if we were to move the items back from in the
-		-- opposite direction. In the event of a normal move, this must
-		-- succeed, because a normal move subtracts some items from the from
-		-- stack and adds them to the to stack; the two stacks naturally must
-		-- be compatible and so the reverse operation must succeed. However, if
-		-- the user *swaps* the two stacks instead, then due to issue
-		-- minetest/minetest#6534, this function is only called once; however,
-		-- when it is called, the stack that used to be in the to stack has
-		-- already been moved to the from stack, so we can detect the situation
-		-- by the fact that the reverse move will fail due to the from stack
-		-- being incompatible with its former contents.
+		-- Detect stack swaps (in the same inventory) by trying to add them together.
 		local inv = minetest.get_meta(pos):get_inventory()
 		local from_stack = inv:get_stack("main", from_index)
 		local to_stack = inv:get_stack("main", to_index)
@@ -283,43 +249,13 @@ minetest.register_node("digilines:chest", {
 		minetest.log("action", player:get_player_name().." moves stuff in chest at "..minetest.pos_to_string(pos))
 	end,
 	on_metadata_inventory_put = function(pos, _, index, stack, player)
-		-- Get what was in the target slot before the put; it has disappeared
-		-- by now (been replaced by the result of the put action) but we saved
-		-- it in allow_metadata_inventory_put. This should always work
-		-- (allow_metadata_inventory_put should AFAICT always be called
-		-- immediately before on_metadata_inventory_put), but in case of
-		-- something weird happening, just fall back to using an empty
-		-- ItemStack rather than crashing.
-		local old_stack
-		if last_inventory_put_index == index then
-			old_stack = last_inventory_put_stack
-			last_inventory_put_index = nil
-			last_inventory_put_stack = nil
-		else
-			old_stack = ItemStack(nil)
-		end
-		-- If the player tries to place a stack into an inventory, there’s
-		-- already a stack there, and the existing stack is either of a
-		-- different item type or full, then obviously the stacks can’t be
-		-- merged; instead the stacks are swapped. This information is not
-		-- reported to mods (Minetest core neither tells us that a particular
-		-- action was a swap, nor tells us a take followed by a put). In core,
-		-- the condition for swapping is that you try to add the new stack to
-		-- the existing stack and the leftovers are as big as the original
-		-- stack to put. Replicate that logic here using the old stack saved in
-		-- allow_metadata_inventory_put. If a swap happened, report it to the
-		-- Digilines network as a utake followed by a uput.
-		local leftovers = old_stack:add_item(stack)
-		if leftovers:get_count() == stack:get_count() then
-			send_message(pos, "utake", old_stack, index)
-		end
 		send_message(pos, "uput", stack, nil, index)
-		check_full(pos, stack)
+		send_full_if_full(pos, stack)
 		minetest.log("action", player:get_player_name().." puts stuff into chest at "..minetest.pos_to_string(pos))
 	end,
 	on_metadata_inventory_take = function(pos, _, index, stack, player)
 		send_message(pos, "utake", stack, index)
-		check_empty(pos)
+		send_empty_if_empty(pos)
 		minetest.log("action", player:get_player_name().." takes stuff from chest at "..minetest.pos_to_string(pos))
 	end
 })
@@ -331,7 +267,7 @@ if minetest.global_exists("tubelib") then
 
 		send_message(passed_speculative_pull.pos, "ttake", passed_speculative_pull.taken,
 				passed_speculative_pull.index, nil, vector.multiply(passed_speculative_pull.dir, -1))
-		check_empty(passed_speculative_pull.pos)
+		send_empty_if_empty(passed_speculative_pull.pos)
 	end
 	local function tube_side(pos, side)
 		if side == "U" then return {x=0,y=-1,z=0}

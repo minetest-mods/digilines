@@ -1,13 +1,19 @@
+unused_args = false
+max_line_length = 111
 
 read_globals = {
-	"vector",
-	"screwdriver",
+	"dump",
+
+	"core",
 	"minetest",
+	"vector",
+	"ItemStack",
+	"VoxelArea",
+
 	"default",
 	"pipeworks",
-	"dump",
-	"VoxelArea",
-	"ItemStack",
+	"screwdriver",
+
 }
 
 globals = {
