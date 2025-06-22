@@ -162,7 +162,11 @@ local generate_line = function(s, ypos)
 end
 
 local generate_texture = function(lines)
-	local texture = "[combine:"..LCD_WIDTH.."x"..LCD_WIDTH
+	-- Active Mip Mapping ruins the text due to nearby transparent pixels at a distance.
+	-- Using `lcd_anyside.png` as base image fixes this (see issue #58)
+	local texture = ("lcd_anyside.png^[resize:%dx%d^[combine:%dx%d"):format(
+		LCD_WIDTH, LCD_WIDTH, LCD_WIDTH, LCD_WIDTH
+	)
 	local ypos = math.floor((LCD_WIDTH - LINE_HEIGHT*NUMBER_OF_LINES) / 2)
 	for i = 1, #lines do
 		texture = texture..generate_line(lines[i], ypos)
