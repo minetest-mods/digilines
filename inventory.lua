@@ -5,6 +5,65 @@ local S = digilines.S
 
 local pipeworks_enabled = minetest.get_modpath("pipeworks") ~= nil
 
+-- Messages which will be sent in a single batch
+--[[
+Table format:
+{
+	[node pos hash] = {
+		messages = { msg1, msg2, ... }
+		timer = <job table from core.after()>
+	},
+	...
+}
+]]
+local batches = {}
+-- Maximum interval from the previous message to include the current one into batch (in seconds)
+local interval_to_batch = 0.1
+-- Maximum number of messages in batch
+local max_messages_in_batch = 100
+-- Time of the last message for each chest
+local last_message_time_for_chest = {}
+
+-- Messages which can be included into batch
+local can_be_batched = {
+	["empty"] = true, ["full"] = true, ["umove"] = true,
+	["uswap"] = true, ["utake"] = true, ["uput"] = true
+}
+
+-- Messages which shouldn't be included into batch when the batch is empty
+local dont_batch_when_empty = { ["empty"] = true, ["full"] = true }
+
+-- Sends the current batch message of a Digiline chest
+-- pos: the position of the Digilines chest node
+-- channel: the channel to which the message will be sent
+local function send_and_clear_batch(pos, channel)
+	local pos_hash = minetest.hash_node_position(pos)
+	if #batches[pos_hash].messages == 1 then
+		-- If there is only one message is the batch, don't send it in a batch
+		digilines.receptor_send(pos, digilines.rules.default, channel,
+			batches[pos_hash].messages[1])
+	else
+		digilines.receptor_send(pos, digilines.rules.default, channel, {
+			action = "batch",
+			messages = batches[pos_hash].messages
+		})
+	end
+	batches[pos_hash] = nil
+	last_message_time_for_chest[pos_hash] = nil
+end
+
+-- Send all the batched messages on timer expiration for the chest if present
+local function send_batch_on_timer(pos)
+	if not batches[minetest.hash_node_position(pos)] then
+		return
+	end
+	if minetest.get_node(pos).name == "ignore" then
+		minetest.load_area(pos)
+	end
+	local channel = minetest.get_meta(pos):get_string("channel")
+	send_and_clear_batch(pos, channel)
+end
+
 -- Sends a message onto the Digilines network.
 -- pos: the position of the Digilines chest node.
 -- action: the action string indicating what happened.
@@ -14,6 +73,7 @@ local pipeworks_enabled = minetest.get_modpath("pipeworks") ~= nil
 -- side: which side of the chest the action occurred (optional).
 local function send_message(pos, action, stack, from_slot, to_slot, side)
 	local channel = minetest.get_meta(pos):get_string("channel")
+
 	local msg = {
 		action = action,
 		stack = stack and stack:to_table(),
@@ -22,6 +82,33 @@ local function send_message(pos, action, stack, from_slot, to_slot, side)
 		-- Duplicate the vector in case the caller expects it not to change.
 		side = side and vector.new(side)
 	}
+
+	-- Check if we need to include the current message into batch
+	local pos_hash = minetest.hash_node_position(pos)
+	if can_be_batched[msg.action] and (batches[pos_hash] or not dont_batch_when_empty[msg.action]) then
+		local prev_time = last_message_time_for_chest[pos_hash] or 0
+		local cur_time = minetest.get_us_time()
+		last_message_time_for_chest[pos_hash] = cur_time
+		if cur_time - prev_time < 1000000 * interval_to_batch or batches[pos_hash] then
+			batches[pos_hash] = batches[pos_hash] or { messages = {} }
+			table.insert(batches[pos_hash].messages, msg)
+			if #batches[pos_hash].messages >= max_messages_in_batch then
+				-- Send the batch immediately if it's full
+				send_and_clear_batch(pos, channel)
+			elseif not batches[pos_hash].timer then
+				batches[pos_hash].timer = minetest.after(interval_to_batch, send_batch_on_timer, pos)
+			end
+
+			return
+		end
+	else
+		-- If the current message cannot be batched, flush the current batch to preserve order
+		if batches[pos_hash] then
+			batches[pos_hash].timer:cancel()
+			send_and_clear_batch(pos, channel)
+		end
+	end
+
 	digilines.receptor_send(pos, digilines.rules.default, channel, msg)
 end
 
@@ -177,6 +264,16 @@ minetest.register_node("digilines:chest", {
 			"listring[]")
 		local inv = meta:get_inventory()
 		inv:set_size("main", 8*4)
+	end,
+	on_destruct = function(pos)
+		local pos_hash = minetest.hash_node_position(pos)
+		if not batches[pos_hash] then
+			return
+		end
+
+		batches[pos_hash].timer:cancel()
+		local channel = minetest.get_meta(pos):get_string("channel")
+		send_and_clear_batch(pos, channel)
 	end,
 	after_place_node = tubescan,
 	after_dig_node = tubescan,
