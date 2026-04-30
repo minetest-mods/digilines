@@ -1,6 +1,9 @@
 local S = digilines.S
 local FS = digilines.FS
 
+local rules = digilines.rules.default
+table.insert(rules, vector.new(0, -1, 0))
+
 local GET_COMMAND = "GET"
 
 local lsensor_nodebox =
@@ -48,7 +51,7 @@ core.register_node("digilines:lightsensor", {
 	digilines =
 	{
 		receptor = {
-			rules = digilines.rules.default
+			rules = rules
 		},
 		effector = {
 			action = on_digiline_receive
