@@ -5,7 +5,7 @@ read_globals = {
 	"dump",
 
 	"core",
-	"minetest",
+	"core",
 	"vector",
 	"ItemStack",
 	"VoxelArea",

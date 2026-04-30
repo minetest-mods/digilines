@@ -5,8 +5,8 @@ local function check_and_update(pos, node)
 	end
 end
 
-minetest.register_on_placenode(check_and_update)
-minetest.register_on_dignode(check_and_update)
+core.register_on_placenode(check_and_update)
+core.register_on_dignode(check_and_update)
 
 function digilines.update_autoconnect(pos, secondcall)
 	local xppos = {x=pos.x+1, y=pos.y, z=pos.z}
@@ -39,7 +39,7 @@ function digilines.update_autoconnect(pos, secondcall)
 		digilines.update_autoconnect(zmympos, true)
 	end
 
-	local digilinespec = digilines.getspec(minetest.get_node(pos))
+	local digilinespec = digilines.getspec(core.get_node(pos))
 	if not (digilinespec and digilinespec.wire and
 			digilinespec.wire.use_autoconnect) then
 		return nil
@@ -80,5 +80,5 @@ function digilines.update_autoconnect(pos, secondcall)
 				tostring(xpy)..tostring(zpy)..tostring(xmy)..tostring(zmy)
 
 
-	minetest.set_node(pos, {name = digilinespec.wire.basename..nodeid})
+	core.set_node(pos, {name = digilinespec.wire.basename..nodeid})
 end

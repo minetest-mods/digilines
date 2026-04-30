@@ -3,7 +3,7 @@ assert(core.features.dynamic_add_media_table,
 
 local S = digilines.S
 
-local pipeworks_enabled = minetest.get_modpath("pipeworks") ~= nil
+local pipeworks_enabled = core.get_modpath("pipeworks") ~= nil
 
 -- Sends a message onto the Digilines network.
 -- pos: the position of the Digilines chest node.
@@ -13,7 +13,7 @@ local pipeworks_enabled = minetest.get_modpath("pipeworks") ~= nil
 -- to_slot: the slot number that is put into (optional).
 -- side: which side of the chest the action occurred (optional).
 local function send_message(pos, action, stack, from_slot, to_slot, side)
-	local channel = minetest.get_meta(pos):get_string("channel")
+	local channel = core.get_meta(pos):get_string("channel")
 	local msg = {
 		action = action,
 		stack = stack and stack:to_table(),
@@ -27,7 +27,7 @@ end
 
 -- Checks if the inventory has become empty and, if so, sends an empty message.
 local function send_empty_if_empty(pos)
-	if minetest.get_meta(pos):get_inventory():is_empty("main") then
+	if core.get_meta(pos):get_inventory():is_empty("main") then
 		send_message(pos, "empty")
 	end
 end
@@ -37,7 +37,7 @@ end
 local function send_full_if_full(pos, stack)
 	local one_item_stack = ItemStack(stack)
 	one_item_stack:set_count(1)
-	if not minetest.get_meta(pos):get_inventory():room_for_item("main", one_item_stack) then
+	if not core.get_meta(pos):get_inventory():room_for_item("main", one_item_stack) then
 		send_message(pos, "full", one_item_stack)
 	end
 end
@@ -46,7 +46,7 @@ local tubeconn = pipeworks_enabled and "^pipeworks_tube_connection_wooden.png" o
 local tubescan = pipeworks_enabled and function(pos) pipeworks.scan_for_tube_objects(pos) end or nil
 
 local tube_can_insert = function(pos, _, stack, direction)
-	local ret = minetest.get_meta(pos):get_inventory():room_for_item("main", stack)
+	local ret = core.get_meta(pos):get_inventory():room_for_item("main", stack)
 	if not ret then
 		-- The stack cannot be accepted. It will never be passed to
 		-- insert_object, but it should be reported as a toverflow.
@@ -61,7 +61,7 @@ end
 local tube_insert_object = function(pos, _, original_stack, direction)
 	-- Here, direction = direction item is moving, which is into side.
 	local side = vector.multiply(direction, -1)
-	local inv = minetest.get_meta(pos):get_inventory()
+	local inv = core.get_meta(pos):get_inventory()
 	local inv_contents = inv:get_list("main")
 	local any_put = false
 	local stack = original_stack
@@ -140,14 +140,14 @@ end
 
 local formspec_header = ""
 
-if minetest.get_modpath("mcl_formspec") then
+if core.get_modpath("mcl_formspec") then
 	formspec_header = mcl_formspec.get_itemslot_bg(0,1,8,4)..
 		mcl_formspec.get_itemslot_bg(0,6,8,4)
 end
 
-minetest.register_alias("digilines_inventory:chest", "digilines:chest")
+core.register_alias("digilines_inventory:chest", "digilines:chest")
 
-minetest.register_node("digilines:chest", {
+core.register_node("digilines:chest", {
 	description = S("Digiline Chest"),
 	tiles = {
 		"default_chest_top.png"..tubeconn,
@@ -165,7 +165,7 @@ minetest.register_node("digilines:chest", {
 	_mcl_blast_resistance = 1,
 	_mcl_hardness = 0.8,
 	on_construct = function(pos)
-		local meta = minetest.get_meta(pos)
+		local meta = core.get_meta(pos)
 		meta:set_string("infotext", S("Digiline Chest"))
 		meta:set_string("formspec", "size[8,10]"..
 			formspec_header..
@@ -181,15 +181,15 @@ minetest.register_node("digilines:chest", {
 	after_place_node = tubescan,
 	after_dig_node = tubescan,
 	can_dig = function(pos)
-		return minetest.get_meta(pos):get_inventory():is_empty("main")
+		return core.get_meta(pos):get_inventory():is_empty("main")
 	end,
 	on_receive_fields = function(pos, _, fields, sender)
 		local name = sender:get_player_name()
-		if minetest.is_protected(pos, name) and not minetest.check_player_privs(name, {protection_bypass=true}) then
+		if core.is_protected(pos, name) and not core.check_player_privs(name, {protection_bypass=true}) then
 			return
 		end
 		if fields.channel ~= nil then
-			minetest.get_meta(pos):set_string("channel",fields.channel)
+			core.get_meta(pos):set_string("channel",fields.channel)
 		end
 	end,
 	digilines = {
@@ -221,14 +221,14 @@ minetest.register_node("digilines:chest", {
 	},
 	on_metadata_inventory_move = function(pos, _, from_index, _, to_index, count, player)
 		-- Detect stack swaps (in the same inventory) by trying to add them together.
-		local inv = minetest.get_meta(pos):get_inventory()
+		local inv = core.get_meta(pos):get_inventory()
 		local from_stack = inv:get_stack("main", from_index)
 		local to_stack = inv:get_stack("main", to_index)
 		local reverse_move_stack = ItemStack(to_stack)
 		reverse_move_stack:set_count(count)
 		local swapped = from_stack:add_item(reverse_move_stack):get_count() == count
 		if swapped then
-			local channel = minetest.get_meta(pos):get_string("channel")
+			local channel = core.get_meta(pos):get_string("channel")
 			to_stack:set_count(count)
 			local msg = {
 				action = "uswap",
@@ -246,21 +246,21 @@ minetest.register_node("digilines:chest", {
 			to_stack:set_count(count)
 			send_message(pos, "umove", to_stack, from_index, to_index)
 		end
-		minetest.log("action", player:get_player_name().." moves stuff in chest at "..minetest.pos_to_string(pos))
+		core.log("action", player:get_player_name().." moves stuff in chest at "..core.pos_to_string(pos))
 	end,
 	on_metadata_inventory_put = function(pos, _, index, stack, player)
 		send_message(pos, "uput", stack, nil, index)
 		send_full_if_full(pos, stack)
-		minetest.log("action", player:get_player_name().." puts stuff into chest at "..minetest.pos_to_string(pos))
+		core.log("action", player:get_player_name().." puts stuff into chest at "..core.pos_to_string(pos))
 	end,
 	on_metadata_inventory_take = function(pos, _, index, stack, player)
 		send_message(pos, "utake", stack, index)
 		send_empty_if_empty(pos)
-		minetest.log("action", player:get_player_name().." takes stuff from chest at "..minetest.pos_to_string(pos))
+		core.log("action", player:get_player_name().." takes stuff from chest at "..core.pos_to_string(pos))
 	end
 })
 
-if minetest.global_exists("tubelib") then
+if core.global_exists("tubelib") then
 	local speculative_pull = nil
 	local pull_succeeded = function(passed_speculative_pull)
 		if passed_speculative_pull.canceled then return end
@@ -273,15 +273,15 @@ if minetest.global_exists("tubelib") then
 		if side == "U" then return {x=0,y=-1,z=0}
 		elseif side == "D" then return {x=0,y=1,z=0}
 		end
-		local param2 = minetest.get_node(pos).param2
+		local param2 = core.get_node(pos).param2
 		return vector.multiply(
-			minetest.facedir_to_dir(
+			core.facedir_to_dir(
 				tubelib2.side_to_dir(side, param2) - 1),
 			-1)
 	end
 	tubelib.register_node("digilines:chest", {}, {
 		on_pull_stack = function(pos, side, _)
-			local inv = minetest.get_meta(pos):get_inventory()
+			local inv = core.get_meta(pos):get_inventory()
 			for i, stack in pairs(inv:get_list("main")) do
 				if not stack:is_empty() then
 					speculative_pull = {
@@ -291,7 +291,7 @@ if minetest.global_exists("tubelib") then
 						index = i,
 						dir = tube_side(pos, side)
 					}
-					minetest.after(0, pull_succeeded, speculative_pull)
+					core.after(0, pull_succeeded, speculative_pull)
 					inv:set_stack("main", i, nil)
 					return stack
 				end
@@ -299,7 +299,7 @@ if minetest.global_exists("tubelib") then
 			return nil
 		end,
 		on_pull_item = function(pos, side, _)
-			local inv = minetest.get_meta(pos):get_inventory()
+			local inv = core.get_meta(pos):get_inventory()
 			for i, stack in pairs(inv:get_list("main")) do
 				if not stack:is_empty() then
 					local taken = stack:take_item(1)
@@ -310,7 +310,7 @@ if minetest.global_exists("tubelib") then
 						index = i,
 						dir = tube_side(pos, side)
 					}
-					minetest.after(0, pull_succeeded, speculative_pull)
+					core.after(0, pull_succeeded, speculative_pull)
 					inv:set_stack("main", i, stack)
 					return taken
 				end
@@ -326,7 +326,7 @@ if minetest.global_exists("tubelib") then
 			return true
 		end,
 		on_unpull_item = function(pos, _, item, _)
-			local inv = minetest.get_meta(pos):get_inventory()
+			local inv = core.get_meta(pos):get_inventory()
 			if not inv:room_for_item("main", item) then
 				return false
 			end
@@ -352,11 +352,11 @@ end
 
 local chest = "default:chest"
 
-if minetest.get_modpath("mcl_chests") then
+if core.get_modpath("mcl_chests") then
 	chest = "mcl_chests:chest"
 end
 
-minetest.register_craft({
+core.register_craft({
 	type = "shapeless",
 	output = "digilines:chest",
 	recipe = {chest, "digilines:wire_std_00000000"}
