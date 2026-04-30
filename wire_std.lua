@@ -83,7 +83,7 @@ for zmy=0, 1 do
 		nodebox = {-8/16, -.5, -1/16, 8/16, -.5+1/16, 1/16}
 	end
 
-	minetest.register_node("digilines:wire_std_"..nodeid, {
+	core.register_node("digilines:wire_std_"..nodeid, {
 		description = wiredesc,
 		drawtype = "nodebox",
 		tiles = tiles,

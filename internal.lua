@@ -1,5 +1,5 @@
 function digilines.getspec(node)
-	local def = minetest.registered_nodes[node.name]
+	local def = core.registered_nodes[node.name]
 	if not def then return false end
 	return def.digilines or def.digiline
 end
@@ -87,7 +87,7 @@ local function queue_dequeue(queue)
 end
 
 function digilines.transmit(pos, channel, msg, checked)
-	local checkedID = minetest.hash_node_position(pos)
+	local checkedID = core.hash_node_position(pos)
 	if checked[checkedID] then
 		return
 	end
@@ -112,7 +112,7 @@ function digilines.transmit(pos, channel, msg, checked)
 				for _, rule in ipairs(rules) do
 					local nextPos = digilines.addPosRule(curPos, rule)
 					if digilines.rules_link(curPos, nextPos) then
-						local checkedID2 = minetest.hash_node_position(nextPos)
+						local checkedID2 = core.hash_node_position(nextPos)
 						if not checked[checkedID2] then
 							checked[checkedID2] = true
 							queue_enqueue(queue, nextPos)

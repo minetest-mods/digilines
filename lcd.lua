@@ -6,7 +6,7 @@ local FS = digilines.FS
 -- Font: 04.jp.org
 
 -- load characters map
-local chars_file = io.open(minetest.get_modpath("digilines").."/characters", "r")
+local chars_file = io.open(core.get_modpath("digilines").."/characters", "r")
 local charmap = {}
 if not chars_file then
 	print("[digilines] E: LCD: character map file not found")
@@ -191,11 +191,11 @@ local lcds = {
 }
 
 local reset_meta = function(pos)
-	minetest.get_meta(pos):set_string("formspec", "field[channel;"..FS("Channel")..";${channel}]")
+	core.get_meta(pos):set_string("formspec", "field[channel;"..FS("Channel")..";${channel}]")
 end
 
 local clearscreen = function(pos)
-	local objects = minetest.get_objects_inside_radius(pos, 0.5)
+	local objects = core.get_objects_inside_radius(pos, 0.5)
 	for _, o in ipairs(objects) do
 		local o_entity = o:get_luaentity()
 		if o_entity and o_entity.name == "digilines_lcd:text" then
@@ -205,7 +205,7 @@ local clearscreen = function(pos)
 end
 
 local set_texture = function(ent)
-	local meta = minetest.get_meta(ent.object:get_pos())
+	local meta = core.get_meta(ent.object:get_pos())
 	local text = meta:get_string("text")
 	ent.object:set_properties({
 		textures = {
@@ -216,7 +216,7 @@ end
 
 local get_entity = function(pos)
 	local lcd_entity
-	local objects = minetest.get_objects_inside_radius(pos, 0.5)
+	local objects = core.get_objects_inside_radius(pos, 0.5)
 	for _, o in ipairs(objects) do
 		local o_entity = o:get_luaentity()
 		if o_entity and o_entity.name == "digilines_lcd:text" then
@@ -236,7 +236,7 @@ local rotate_text = function(pos, param)
 	if not entity then
 		return
 	end
-	local lcd_info = lcds[param or minetest.get_node(pos).param2]
+	local lcd_info = lcds[param or core.get_node(pos).param2]
 	if not lcd_info then
 		return
 	end
@@ -254,13 +254,13 @@ end
 
 local spawn_entity = function(pos)
 	if not get_entity(pos) then
-		minetest.add_entity(pos, "digilines_lcd:text")
+		core.add_entity(pos, "digilines_lcd:text")
 		rotate_text(pos)
 	end
 end
 
 local on_digiline_receive = function(pos, _, channel, msg)
-	local meta = minetest.get_meta(pos)
+	local meta = core.get_meta(pos)
 	local setchan = meta:get_string("channel")
 	if setchan ~= channel then return end
 
@@ -279,8 +279,8 @@ local lcd_box = {
 	wall_top = {-8/16, 7/16, -8/16, 8/16, 8/16, 8/16}
 }
 
-minetest.register_alias("digilines_lcd:lcd", "digilines:lcd")
-minetest.register_node("digilines:lcd", {
+core.register_alias("digilines_lcd:lcd", "digilines:lcd")
+core.register_node("digilines:lcd", {
 	drawtype = "nodebox",
 	description = S("Digiline LCD"),
 	inventory_image = "lcd_lcd.png",
@@ -297,9 +297,9 @@ minetest.register_node("digilines:lcd", {
 	_mcl_blast_resistance = 1,
 	_mcl_hardness = 0.8,
 	after_place_node = function(pos)
-		local param2 = minetest.get_node(pos).param2
+		local param2 = core.get_node(pos).param2
 		if param2 == 0 or param2 == 1 then
-			minetest.add_node(pos, {name = "digilines:lcd", param2 = 3})
+			core.add_node(pos, {name = "digilines:lcd", param2 = 3})
 		end
 		spawn_entity(pos)
 		prepare_writing(pos)
@@ -307,7 +307,7 @@ minetest.register_node("digilines:lcd", {
 	on_construct = reset_meta,
 	on_destruct = clearscreen,
 	on_punch = function(pos, _, puncher, _)
-		if minetest.is_player(puncher) then
+		if core.is_player(puncher) then
 			spawn_entity(pos)
 		end
 	end,
@@ -319,11 +319,11 @@ minetest.register_node("digilines:lcd", {
 	end,
 	on_receive_fields = function(pos, _, fields, sender)
 		local name = sender:get_player_name()
-		if minetest.is_protected(pos, name) and not minetest.check_player_privs(name, {protection_bypass=true}) then
+		if core.is_protected(pos, name) and not core.check_player_privs(name, {protection_bypass=true}) then
 			return
 		end
 		if (fields.channel) then
-			minetest.get_meta(pos):set_string("channel", fields.channel)
+			core.get_meta(pos):set_string("channel", fields.channel)
 		end
 	end,
 	digilines = {
@@ -334,7 +334,7 @@ minetest.register_node("digilines:lcd", {
 	},
 })
 
-minetest.register_lbm({
+core.register_lbm({
 	label = "Replace Missing Text Entities",
 	name = "digilines:replace_text",
 	nodenames = {"digilines:lcd"},
@@ -342,7 +342,7 @@ minetest.register_lbm({
 	action = spawn_entity,
 })
 
-minetest.register_entity(":digilines_lcd:text", {
+core.register_entity(":digilines_lcd:text", {
 	initial_properties = {
 		collisionbox = { 0, 0, 0, 0, 0, 0 },
 		visual = "upright_sprite",
@@ -361,7 +361,7 @@ if digilines.mcl then
 	lightstone = "mesecons_lightstone:lightstone_off"
 end
 
-minetest.register_craft({
+core.register_craft({
 	output = "digilines:lcd 2",
 	recipe = {
 		{steel_ingot, "digilines:wire_std_00000000", steel_ingot},

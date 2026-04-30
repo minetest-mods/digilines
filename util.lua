@@ -102,7 +102,7 @@ local MAPBLOCKSIZE = 16
 
 -- Converts a node position into a hash of a mapblock position.
 local function vm_hash_blockpos(pos)
-	return minetest.hash_node_position({
+	return core.hash_node_position({
 		x = math.floor(pos.x / MAPBLOCKSIZE),
 		y = math.floor(pos.y / MAPBLOCKSIZE),
 		z = math.floor(pos.z / MAPBLOCKSIZE)
@@ -114,7 +114,7 @@ local function vm_get_or_create_entry(pos)
 	local hash = vm_hash_blockpos(pos)
 	local tbl = vm_cache[hash]
 	if not tbl then
-		local vm = minetest.get_voxel_manip(pos, pos)
+		local vm = core.get_voxel_manip(pos, pos)
 		local min_pos, max_pos = vm:get_emerged_area()
 		local va = VoxelArea:new{MinEdge = min_pos, MaxEdge = max_pos}
 		tbl = {va = va, data = vm:get_data(), param1 = vm:get_light_data(), param2 = vm:get_param2_data()}
@@ -130,7 +130,7 @@ local function vm_get_node(pos)
 	local node_value = tbl.data[index]
 	local node_param1 = tbl.param1[index]
 	local node_param2 = tbl.param2[index]
-	return {name = minetest.get_name_from_content_id(node_value), param1 = node_param1, param2 = node_param2}
+	return {name = core.get_name_from_content_id(node_value), param1 = node_param1, param2 = node_param2}
 end
 
 -- Gets the node at a given position, regardless of whether it is loaded or
@@ -145,12 +145,12 @@ function digilines.get_node_force(pos)
 	if vm_cache then
 		return vm_get_node(pos)
 	end
-	local node = minetest.get_node(pos)
+	local node = core.get_node(pos)
 	if node.name == "ignore" then
 		-- Node is not currently loaded; use a VoxelManipulator to prime
 		-- the mapblock cache and try again.
-		minetest.get_voxel_manip(pos, pos)
-		node = minetest.get_node(pos)
+		core.get_voxel_manip(pos, pos)
+		node = core.get_node(pos)
 	end
 	return node
 end
