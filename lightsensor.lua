@@ -1,8 +1,8 @@
 local S = digilines.S
 local FS = digilines.FS
 
-local rules = digilines.rules.default
-table.insert(rules, vector.new(0, -1, 0))
+local custom_rules = table.copy(digilines.rules.default)
+table.insert(custom_rules, vector.new(0, -1, 0))
 
 local GET_COMMAND = "GET"
 
@@ -31,7 +31,7 @@ local on_digiline_receive = function (pos, _, channel, msg)
 	local setchan = core.get_meta(pos):get_string("channel")
 	if channel == setchan and msg == GET_COMMAND then
 		local lightval = core.get_node_light(pos)
-		digilines.receptor_send(pos, digilines.rules.default, channel, lightval)
+		digilines.receptor_send(pos, custom_rules, channel, lightval)
 	end
 end
 
@@ -51,9 +51,10 @@ core.register_node("digilines:lightsensor", {
 	digilines =
 	{
 		receptor = {
-			rules = rules
+			rules = custom_rules
 		},
 		effector = {
+			rules = custom_rules,
 			action = on_digiline_receive
 		},
 	},
