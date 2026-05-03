@@ -5,7 +5,6 @@ read_globals = {
 	"dump",
 
 	"core",
-	"core",
 	"vector",
 	"ItemStack",
 	"VoxelArea",
@@ -14,6 +13,7 @@ read_globals = {
 	"pipeworks",
 	"screwdriver",
 
+	table = { fields = { "copy" } },
 }
 
 globals = {
