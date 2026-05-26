@@ -48,9 +48,9 @@ function digilines.rules_link(output, input)
 
 
 	for _, orule in ipairs(outputrules) do
-		if digilines.cmpPos(digilines.addPosRule(output, orule), input) then
+		if vector.equals(vector.add(output, orule), input) then
 			for _, irule in ipairs(inputrules) do
-				if digilines.cmpPos(digilines.addPosRule(input, irule), output) then
+				if vector.equals(vector.add(input, irule), output) then
 					return true
 				end
 			end
@@ -110,7 +110,7 @@ function digilines.transmit(pos, channel, msg, checked)
 			if spec.wire then
 				local rules = digilines.importrules(spec.wire.rules, node)
 				for _, rule in ipairs(rules) do
-					local nextPos = digilines.addPosRule(curPos, rule)
+					local nextPos = vector.add(curPos, rule)
 					if digilines.rules_link(curPos, nextPos) then
 						local checkedID2 = core.hash_node_position(nextPos)
 						if not checked[checkedID2] then
