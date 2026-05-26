@@ -1,3 +1,11 @@
+digilines.addPosRule = function()
+	error("digilines.addPosRule(a,b) is deprecated. Use vector.add(a,b).")
+end
+
+digilines.cmpPos = function()
+	error("digilines.cmpPos(a,b) is deprecated. Use vector.equals(a,b).")
+end
+
 --Rules rotation Functions:
 function digilines.rotate_rules_right(rules)
 	local nr={}
