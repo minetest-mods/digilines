@@ -1,9 +1,9 @@
 function digilines.addPosRule(p, r)
-	return {x = p.x + r.x, y = p.y + r.y, z = p.z + r.z}
+	return vector.add(p, r)
 end
 
 function digilines.cmpPos(p1, p2)
-	return (p1.x == p2.x and p1.y == p2.y and p1.z == p2.z)
+	return vector.equals(p1, p2)
 end
 
 --Rules rotation Functions:
