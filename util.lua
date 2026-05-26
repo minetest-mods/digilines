@@ -1,11 +1,3 @@
-function digilines.addPosRule(p, r)
-	return vector.add(p, r)
-end
-
-function digilines.cmpPos(p1, p2)
-	return vector.equals(p1, p2)
-end
-
 --Rules rotation Functions:
 function digilines.rotate_rules_right(rules)
 	local nr={}
