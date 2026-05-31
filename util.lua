@@ -1,9 +1,9 @@
-function digilines.addPosRule(p, r)
-	return {x = p.x + r.x, y = p.y + r.y, z = p.z + r.z}
+digilines.addPosRule = function()
+	error("digilines.addPosRule(a,b) is deprecated. Use vector.add(a,b).")
 end
 
-function digilines.cmpPos(p1, p2)
-	return (p1.x == p2.x and p1.y == p2.y and p1.z == p2.z)
+digilines.cmpPos = function()
+	error("digilines.cmpPos(a,b) is deprecated. Use vector.equals(a,b).")
 end
 
 --Rules rotation Functions:

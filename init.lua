@@ -64,8 +64,8 @@ function digilines.receptor_send(pos, rules, channel, msg)
 	local checked = {}
 	checked[core.hash_node_position(pos)] = true -- exclude itself
 	for _,rule in ipairs(rules) do
-		if digilines.rules_link(pos, digilines.addPosRule(pos, rule)) then
-			digilines.transmit(digilines.addPosRule(pos, rule), channel, msg, checked)
+		if digilines.rules_link(pos, vector.add(pos, rule)) then
+			digilines.transmit(vector.add(pos, rule), channel, msg, checked)
 		end
 	end
 end
