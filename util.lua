@@ -1,9 +1,9 @@
 digilines.addPosRule = function()
-	error("digilines.addPosRule(a,b) is deprecated. Use vector.add(a,b).")
+	core.log("warning", "Call to deprecated function 'digilines.addPosRule', use 'vector.add' instead.")
 end
 
 digilines.cmpPos = function()
-	error("digilines.cmpPos(a,b) is deprecated. Use vector.equals(a,b).")
+	core.log("warning", "Call to deprecated function 'digilines.cmpPos', use 'vector.equals' instead.")
 end
 
 --Rules rotation Functions:
