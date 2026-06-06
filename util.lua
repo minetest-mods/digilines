@@ -1,9 +1,11 @@
-digilines.addPosRule = function()
+digilines.addPosRule = function(p, r)
 	core.log("warning", "Call to deprecated function 'digilines.addPosRule', use 'vector.add' instead.")
+	return vector.add(p, r)
 end
 
-digilines.cmpPos = function()
+digilines.cmpPos = function(p1, p2)
 	core.log("warning", "Call to deprecated function 'digilines.cmpPos', use 'vector.equals' instead.")
+	return vector.equals(p1, p2)
 end
 
 --Rules rotation Functions:
