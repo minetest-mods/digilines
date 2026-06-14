@@ -184,10 +184,10 @@ local lcds = {
 
 	-- Note: 0.437 is on the surface but we need some space to avoid
 	--       z-fighting in distant places (e.g. 30000,10,0)
-	[2] = {delta = vector.new( 0.43,0,0), yaw = math.pi / -2},
-	[3] = {delta = vector.new(-0.43,0,0), yaw = math.pi /  2},
-	[4] = {delta = vector.new(0,0, 0.43), yaw = 0},
-	[5] = {delta = vector.new(0,0,-0.43), yaw = math.pi},
+	[2] = {delta = vector.new( 0.43, 0,  0   ), yaw = math.pi / -2},
+	[3] = {delta = vector.new(-0.43, 0,  0   ), yaw = math.pi /  2},
+	[4] = {delta = vector.new( 0,    0,  0.43), yaw = 0},
+	[5] = {delta = vector.new( 0,    0, -0.43), yaw = math.pi},
 }
 
 local reset_meta = function(pos)
