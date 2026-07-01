@@ -266,18 +266,14 @@ local chest_ndef = {
 
 do
 	-- Mineclone2 / VoxeLands compatibility
-	local path = core.get_modpath("mcl_chests")
-	if path then
-		chest_ndef.drawtype = "mesh"
-		chest_ndef.mesh = (
-			io.open(path .. "/models/mcl_chests_chest.b3d", "r")
-			and "mcl_chests_chest.b3d" -- VoxeLands
-			or "mcl_chests_chest.obj" -- Mineclone2
-		)
-		chest_ndef.tiles = {
-			"mcl_chests_normal.png" ..
-				(pipeworks_enabled and "^pipeworks_tube_connection_mcl_chest.png" or "")
-		}
+	if core.get_modpath("mcl_chests") then
+		local def = core.registered_nodes["mcl_chests:chest"]
+		chest_ndef.drawtype = def.drawtype
+		chest_ndef.mesh     = def.mesh
+		chest_ndef.tiles    = table.copy(def.tiles)
+		if #chest_ndef.tiles == 1 and pipeworks_enabled then
+			chest_ndef.tiles[1] = chest_ndef.tiles[1] .. "^pipeworks_tube_connection_mcl_chest.png"
+		end
 	end
 end
 
