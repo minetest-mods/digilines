@@ -264,17 +264,13 @@ local chest_ndef = {
 	end
 }
 
-do
-	-- Mineclone2 / VoxeLands compatibility
-	if core.get_modpath("mcl_chests") then
-		local def = core.registered_nodes["mcl_chests:chest"]
-		chest_ndef.drawtype = def.drawtype
-		chest_ndef.mesh     = def.mesh
-		chest_ndef.tiles    = table.copy(def.tiles)
-		if #chest_ndef.tiles == 1 and pipeworks_enabled then
-			chest_ndef.tiles[1] = chest_ndef.tiles[1] .. "^pipeworks_tube_connection_mcl_chest.png"
-		end
-	end
+-- Mineclone2 / VoxeLands compatibility
+if core.get_modpath("mcl_chests") then
+	local def = core.registered_nodes["mcl_chests:chest"]
+	chest_ndef.drawtype = def.drawtype
+	chest_ndef.mesh     = def.mesh
+	chest_ndef.tiles    = table.copy(def.tiles)
+	-- TODO `pipeworks_enabled`: There is currently (July 2026) no support for mcl_chest models in pipeworks.
 end
 
 core.register_alias("digilines_inventory:chest", "digilines:chest")
